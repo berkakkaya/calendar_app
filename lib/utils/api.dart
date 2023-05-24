@@ -17,6 +17,7 @@ class ApiManager {
       HttpHeaders.contentTypeHeader: "application/json",
     },
     responseType: ResponseType.json,
+    validateStatus: (code) => code != null,
   ));
 
   /// Initializes the API manager with given base URL
