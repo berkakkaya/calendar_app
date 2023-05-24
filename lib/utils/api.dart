@@ -37,7 +37,10 @@ class ApiManager {
     }
   }
 
-  static Future<Authentication> login(String email, String password) async {
+  static Future<Authentication> login({
+    required String email,
+    required String password,
+  }) async {
     if (!isReady) {
       return Authentication(responseStatus: ResponseStatus.none);
     }
