@@ -6,7 +6,7 @@ import 'package:dio/dio.dart';
 
 class ApiManager {
   static String? _apiUrl;
-  static bool isReady = false;
+  static bool get isReady => _apiUrl != null;
 
   // Setup Dio
   static final Dio _dio = Dio(BaseOptions(
@@ -34,13 +34,16 @@ class ApiManager {
 
       if (response.statusCode == 200 &&
           response.data["message"] == apiTestString) {
-        isReady = true;
         return;
       }
-
-      isReady = false;
     } catch (e) {
-      isReady = false;
+      // We don't need to do anything here, this condition is already
+      // handled in the code below.
+    }
+
+    // Checks have failed, return to null
+    _apiUrl = null;
+  }
     }
   }
 
