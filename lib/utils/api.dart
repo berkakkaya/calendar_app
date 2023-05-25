@@ -6,6 +6,10 @@ import 'package:dio/dio.dart';
 
 class ApiManager {
   static String? _apiUrl;
+
+  static String? _accessToken;
+  static String? _refreshToken;
+
   static bool get isReady => _apiUrl != null;
 
   // Setup Dio
@@ -43,6 +47,12 @@ class ApiManager {
 
     // Checks have failed, return to null
     _apiUrl = null;
+  }
+
+  static void setRefreshToken({
+    String? refreshToken,
+  }) {
+    _refreshToken = refreshToken;
   }
     }
   }
