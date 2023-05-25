@@ -1,6 +1,10 @@
+// TODO: Remove this dead_code flag when other TODOs has been done.
+// ignore_for_file: dead_code
+
 import 'dart:io';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/authentication.dart';
+import 'package:calendar_app/models/exceptions.dart';
 import 'package:calendar_app/models/response_status.dart';
 import 'package:calendar_app/models/user.dart';
 import 'package:calendar_app/models/user_list.dart';
@@ -156,6 +160,11 @@ class ApiManager {
     return Authentication.fromJson(ResponseStatus.success, response.data);
   }
 
+  /// Get a complete list of users
+  ///
+  /// This function uses the POST /users endpoint. It basically returns
+  /// all of user's list. This data can be used for adding participants or
+  /// such.
   static Future<UserList> getUsersList() async {
     if (!isReady) {
       return UserList(responseStatus: ResponseStatus.none);
@@ -164,6 +173,14 @@ class ApiManager {
     if (!isAuthenticated) {
       return UserList(responseStatus: ResponseStatus.authorizationError);
     }
+
+    // This endpoint isn't implemented from the server side yet,
+    // we will simply raise an exception for now.
+
+    // TODO: Remove this exception when it has been implemented
+    throw NotImplementedException(
+      "This endpoint has not been implemented in server-side yet.",
+    );
 
     final response = await _dio.get(
       "${_apiUrl!}/users",
