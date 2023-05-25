@@ -11,6 +11,8 @@ class ApiManager {
   static String? _refreshToken;
 
   static bool get isReady => _apiUrl != null;
+  static bool get isAuthenticated =>
+      _refreshToken != null && _accessToken != null;
 
   // Setup Dio
   static final Dio _dio = Dio(BaseOptions(
