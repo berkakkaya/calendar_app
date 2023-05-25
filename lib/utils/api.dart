@@ -54,7 +54,25 @@ class ApiManager {
   }) {
     _refreshToken = refreshToken;
   }
+
+  static Future<ResponseStatus> getNewToken() async {
+    if (!isReady) return ResponseStatus.none;
+    if (_refreshToken == null) return ResponseStatus.authorizationError;
+
+    final response = await _dio.post<Map<String, dynamic>>(
+      "${_apiUrl!}/token",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: "Bearer $_refreshToken",
+      }),
+    );
+
+    if ([400, 401].contains(response.statusCode)) {
+      _refreshToken = null;
+      return ResponseStatus.authorizationError;
     }
+
+    _accessToken = response.data!["access_token"];
+    return ResponseStatus.success;
   }
 
   /// Log into an account and returns tokens
