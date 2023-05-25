@@ -64,7 +64,9 @@ class ApiManager {
     final response = await _dio.post<Map<String, dynamic>>(
       "${_apiUrl!}/token",
       options: Options(headers: {
-        HttpHeaders.authorizationHeader: "Bearer $_refreshToken",
+        HttpHeaders.authorizationHeader: getAuthorizationString(
+          isAccessToken: false,
+        ),
       }),
     );
 
@@ -75,6 +77,14 @@ class ApiManager {
 
     _accessToken = response.data!["access_token"];
     return ResponseStatus.success;
+  }
+
+  static String? getAuthorizationString({bool isAccessToken = true}) {
+    if (isAccessToken) {
+      return _accessToken == null ? "Bearer $_accessToken" : null;
+    }
+
+    return _refreshToken == null ? "Bearer $_refreshToken" : null;
   }
 
   /// Log into an account and returns tokens
