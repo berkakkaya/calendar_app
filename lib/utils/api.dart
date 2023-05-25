@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/authentication.dart';
 import 'package:calendar_app/models/response_status.dart';
+import 'package:calendar_app/models/user.dart';
+import 'package:calendar_app/models/user_list.dart';
 import 'package:dio/dio.dart';
 
 class ApiManager {
@@ -152,5 +154,34 @@ class ApiManager {
     }
 
     return Authentication.fromJson(ResponseStatus.success, response.data);
+  }
+
+  static Future<UserList> getUsersList() async {
+    if (!isReady) {
+      return UserList(responseStatus: ResponseStatus.none);
+    }
+
+    if (!isAuthenticated) {
+      return UserList(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    final response = await _dio.get(
+      "${_apiUrl!}/users",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+    );
+
+    if ([401, 403].contains(response.statusCode)) {
+      return UserList(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    List<UserNonResponse> list = [];
+
+    for (Map<String, dynamic> user in response.data) {
+      list.add(UserNonResponse.fromJson(user));
+    }
+
+    return UserList(responseStatus: ResponseStatus.success, userList: list);
   }
 }
