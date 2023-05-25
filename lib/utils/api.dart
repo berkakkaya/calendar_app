@@ -57,12 +57,21 @@ class ApiManager {
     _apiUrl = null;
   }
 
+  /// Sets the refresh token with given argument
   static void setRefreshToken({
     String? refreshToken,
   }) {
     _refreshToken = refreshToken;
   }
 
+  /// Gets a new access token
+  ///
+  /// This function can be used when the current access token has its duration
+  /// depleted. It uses the POST /token endpoint. It tries to create a
+  /// new access token with refresh token.
+  ///
+  /// NOTE: If an authorization error happens in this function, you should
+  /// take this as an logout event.
   static Future<ResponseStatus> getNewToken() async {
     if (!isReady) return ResponseStatus.none;
     if (_refreshToken == null) return ResponseStatus.authorizationError;
@@ -85,6 +94,9 @@ class ApiManager {
     return ResponseStatus.success;
   }
 
+  /// Generates an authorization string based on access token or refresh token.
+  ///
+  /// If requested token is null, the returned data will also be null.
   static String? getAuthorizationString({bool isAccessToken = true}) {
     if (isAccessToken) {
       return _accessToken == null ? "Bearer $_accessToken" : null;
