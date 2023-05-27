@@ -6,4 +6,5 @@ enum ResponseStatus {
   duplicateExists,
   notFound,
   accessDenied,
+  serverError,
 }

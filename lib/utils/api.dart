@@ -126,6 +126,10 @@ class ApiManager {
       data: {"email": email, "password": password},
     );
 
+    if (response.statusCode! == 500) {
+      return Authentication(responseStatus: ResponseStatus.serverError);
+    }
+
     if (response.statusCode! == 403) {
       return Authentication(
         responseStatus: ResponseStatus.wrongEmailOrPassword,
@@ -165,6 +169,10 @@ class ApiManager {
       "address": address,
     });
 
+    if (response.statusCode! == 500) {
+      return Authentication(responseStatus: ResponseStatus.serverError);
+    }
+
     if (response.statusCode! == 409) {
       return Authentication(responseStatus: ResponseStatus.duplicateExists);
     }
@@ -200,6 +208,10 @@ class ApiManager {
         HttpHeaders.authorizationHeader: getAuthorizationString(),
       }),
     );
+
+    if (response.statusCode! == 500) {
+      return UserList(responseStatus: ResponseStatus.serverError);
+    }
 
     if ([401, 403].contains(response.statusCode)) {
       return UserList(responseStatus: ResponseStatus.authorizationError);
