@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/authentication.dart';
 import 'package:calendar_app/models/exceptions.dart';
+import 'package:calendar_app/models/login_data.dart';
+import 'package:calendar_app/models/register_data.dart';
 import 'package:calendar_app/models/response_status.dart';
 import 'package:calendar_app/models/user.dart';
 import 'package:calendar_app/models/user_list.dart';
@@ -114,8 +116,7 @@ class ApiManager {
   /// If the email or the password is wrong, response status will be
   /// `wrongEmailOrPassword`.
   static Future<Authentication> login({
-    required String email,
-    required String password,
+    required LoginData loginData,
   }) async {
     if (!isReady) {
       return Authentication(responseStatus: ResponseStatus.none);
@@ -123,7 +124,7 @@ class ApiManager {
 
     final response = await _dio.post(
       "${_apiUrl!}/login",
-      data: {"email": email, "password": password},
+      data: loginData.toJson(),
     );
 
     if (response.statusCode! == 500) {
@@ -146,29 +147,16 @@ class ApiManager {
   /// an access token and a refresh token. If an account with similar username
   /// and/or similar email exists, status will be set to `duplicateExists`.
   static Future<Authentication> register({
-    required String name,
-    required String surname,
-    required String email,
-    required String username,
-    required String password,
-    required int tcIdentityNumber,
-    required String phone,
-    required String address,
+    required RegisterData registerData,
   }) async {
     if (!isReady) {
       return Authentication(responseStatus: ResponseStatus.none);
     }
 
-    final response = await _dio.post("${_apiUrl!}/register", data: {
-      "name": name,
-      "surname": surname,
-      "email": email,
-      "username": username,
-      "password": password,
-      "tc_identity_number": tcIdentityNumber,
-      "phone": phone,
-      "address": address,
-    });
+    final response = await _dio.post(
+      "${_apiUrl!}/register",
+      data: registerData.toJson(),
+    );
 
     if (response.statusCode! == 500) {
       return Authentication(responseStatus: ResponseStatus.serverError);
