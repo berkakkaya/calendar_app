@@ -7,3 +7,9 @@ const apiUrlWarning =
 const apiTestString = "Hello world!";
 const wrongEmailOrPassword =
     "Yanlış e-posta veya şifre girdiniz. Lütfen girişlerinizi kontrol edip yeniden deneyiniz.";
+
+const duplicateAccountExists =
+    "Aynı kullanıcı adıyla ve/veya e-postayla bir hesap mevcut. Lütfen bilgilerinizi kontrol edip yeniden deneyiniz.";
+
+const serverError =
+    "Bir sunucu hatası meydana geldi. Lütfen daha sonra yeniden deneyiniz.";
