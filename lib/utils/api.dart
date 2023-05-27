@@ -163,6 +163,7 @@ class ApiManager {
       "name": name,
       "surname": surname,
       "email": email,
+      "username": username,
       "password": password,
       "tc_identity_number": tcIdentityNumber,
       "phone": phone,
