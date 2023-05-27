@@ -35,6 +35,11 @@ class App extends StatelessWidget {
             fontWeight: FontWeight.w600,
             color: color5,
           ),
+          titleLarge: GoogleFonts.inter(
+            fontWeight: FontWeight.w400,
+            fontSize: 22,
+            color: color5,
+          ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
