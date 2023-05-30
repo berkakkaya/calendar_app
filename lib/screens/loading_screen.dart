@@ -14,11 +14,14 @@ class LoadingScreen extends StatefulWidget {
 
 class _LoadingScreenState extends State<LoadingScreen> {
   bool initializeLock = false;
+  @override
+  void initState() {
+    super.initState();
+    initializeApp();
+  }
 
   @override
   Widget build(BuildContext context) {
-    initializeApp(context);
-
     return const Scaffold(
       body: SafeArea(
         child: Center(
@@ -32,7 +35,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
     );
   }
 
-  void initializeApp(BuildContext context) async {
+  void initializeApp() async {
     if (initializeLock) return;
 
     setState(() {
@@ -80,10 +83,6 @@ class _LoadingScreenState extends State<LoadingScreen> {
       );
 
       if (context.mounted) {
-        setState(() {
-          initializeLock = false;
-        });
-
         navigateToScreen(context, const HomeScreen());
       }
 
@@ -92,10 +91,6 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
     // If not, navigate to the login screen (aka. Welcome Screen)
     if (context.mounted) {
-      setState(() {
-        initializeLock = false;
-      });
-
       navigateToScreen(context, const WelcomeScreen());
     }
   }
