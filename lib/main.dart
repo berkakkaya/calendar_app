@@ -1,9 +1,11 @@
 import 'package:calendar_app/screens/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'consts/colors.dart';
 
 void main() {
+  initializeDateFormatting("tr_TR");
   runApp(const App());
 }
 
@@ -99,6 +101,7 @@ class App extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
       home: const LoadingScreen(),
     );
   }
