@@ -4,7 +4,7 @@ import 'package:calendar_app/consts/illustrations.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/login_data.dart';
 import 'package:calendar_app/models/response_status.dart';
-import 'package:calendar_app/screens/home_screen.dart';
+import 'package:calendar_app/screens/events/home_screen.dart';
 import 'package:calendar_app/screens/login_register/register_step1_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/widgets/popups.dart';
