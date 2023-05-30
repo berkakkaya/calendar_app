@@ -7,6 +7,7 @@ import 'package:calendar_app/screens/login_register/welcome_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/widgets/popups.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<bool> checkAuthenticationStatus({
   required BuildContext context,
@@ -18,9 +19,9 @@ Future<bool> checkAuthenticationStatus({
     return true;
   }
 
-  final accessTokenResponse = await ApiManager.getNewAccessToken();
+  final newAccessToken = await ApiManager.getNewAccessToken();
 
-  if (accessTokenResponse == ResponseStatus.authorizationError) {
+  if (newAccessToken == null) {
     if (context.mounted) {
       await showWarningPopup(
         context: context,
@@ -37,6 +38,9 @@ Future<bool> checkAuthenticationStatus({
 
     return false;
   }
+
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  preferences.setString("accessToken", newAccessToken);
 
   response = await apiCall();
   return response.responseStatus == ResponseStatus.authorizationError
