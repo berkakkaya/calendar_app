@@ -1,8 +1,11 @@
+import 'package:calendar_app/models/base_response.dart';
 import 'package:calendar_app/models/response_status.dart';
 import 'package:calendar_app/models/user.dart';
 
-class UserList {
+class UserList implements BaseResponse {
+  @override
   final ResponseStatus responseStatus;
+
   List<UserNonResponse>? userList;
 
   UserList({required this.responseStatus, this.userList});

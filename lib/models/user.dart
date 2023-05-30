@@ -1,6 +1,8 @@
+import 'package:calendar_app/models/base_response.dart';
 import 'package:calendar_app/models/response_status.dart';
 
-class User {
+class User implements BaseResponse {
+  @override
   final ResponseStatus responseStatus;
 
   String? userId;
