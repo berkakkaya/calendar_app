@@ -1,10 +1,7 @@
 import 'package:calendar_app/models/base_response.dart';
 import 'package:calendar_app/models/response_status.dart';
 
-class EventShortForm implements BaseResponse {
-  @override
-  final ResponseStatus responseStatus;
-
+class EventShortForm {
   String? eventId;
   String? name;
   String? type;
@@ -12,7 +9,6 @@ class EventShortForm implements BaseResponse {
   int? endsAt;
 
   EventShortForm({
-    required this.responseStatus,
     this.eventId,
     this.name,
     this.type,
@@ -20,7 +16,7 @@ class EventShortForm implements BaseResponse {
     this.endsAt,
   });
 
-  EventShortForm.fromJson(this.responseStatus, Map<String, dynamic> json) {
+  EventShortForm.fromJson(Map<String, dynamic> json) {
     eventId = json['_id'];
     name = json['name'];
     type = json['type'];
@@ -88,5 +84,22 @@ class EventLongForm implements BaseResponse {
     data['ends_at'] = endsAt;
     data['remind_at'] = remindAt;
     return data;
+  }
+}
+
+class EventList implements BaseResponse {
+  @override
+  final ResponseStatus responseStatus;
+  final List<EventShortForm> events = [];
+
+  EventList({
+    required this.responseStatus,
+    dynamic data,
+  }) {
+    if (data == null) return;
+
+    for (Map<String, dynamic> event in data) {
+      events.add(EventShortForm.fromJson(event));
+    }
   }
 }
