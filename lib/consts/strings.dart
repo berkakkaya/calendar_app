@@ -13,3 +13,6 @@ const duplicateAccountExists =
 
 const serverError =
     "Bir sunucu hatası meydana geldi. Lütfen daha sonra yeniden deneyiniz.";
+
+const emptyInputWarning =
+    "Bu sayfadaki alanlar boş geçilemez. Bütün alanların dolu olup olmadığını kontrol edip yeniden deneyiniz.";

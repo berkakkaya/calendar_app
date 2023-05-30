@@ -38,7 +38,9 @@ class _RegisterConfirmationScreenState
               InfoPlaceholder(
                 icon: const Icon(Icons.person_outline_rounded, color: color5),
                 title: "İsim ve Soyisim",
-                content: getData(widget.registerData.name),
+                content: Text(
+                  "${widget.registerData.name!} ${widget.registerData.surname!}",
+                ),
               ),
               const SizedBox(height: 32),
               InfoPlaceholder(
@@ -48,7 +50,7 @@ class _RegisterConfirmationScreenState
                   child: Icon(Icons.alternate_email_rounded, color: color5),
                 ),
                 title: "Kullanıcı Adınız",
-                content: getData(widget.registerData.username),
+                content: Text(widget.registerData.username!),
               ),
               const SizedBox(height: 32),
               InfoPlaceholder(
@@ -58,7 +60,7 @@ class _RegisterConfirmationScreenState
                   child: Icon(Icons.email_outlined, color: color5),
                 ),
                 title: "E-postanız",
-                content: getData(widget.registerData.email),
+                content: Text(widget.registerData.email!),
               ),
               const SizedBox(height: 32),
               InfoPlaceholder(
@@ -68,7 +70,7 @@ class _RegisterConfirmationScreenState
                   child: Icon(Icons.badge_outlined, color: color5),
                 ),
                 title: "T.C. Kimlik Numarası",
-                content: getData(widget.registerData.tcIdentityNumber),
+                content: Text(widget.registerData.tcIdentityNumber!.toString()),
               ),
               const SizedBox(height: 32),
               InfoPlaceholder(
@@ -78,7 +80,7 @@ class _RegisterConfirmationScreenState
                   child: Icon(Icons.phone_outlined, color: color5),
                 ),
                 title: "Telefon Numarası",
-                content: getData(widget.registerData.phone),
+                content: Text(widget.registerData.phone!),
               ),
               const SizedBox(height: 32),
               InfoPlaceholder(
@@ -88,7 +90,7 @@ class _RegisterConfirmationScreenState
                   child: Icon(Icons.location_on_outlined, color: color5),
                 ),
                 title: "Adres",
-                content: getData(widget.registerData.address),
+                content: Text(widget.registerData.address!),
               ),
               const Spacer(),
               FilledButton(
@@ -102,19 +104,6 @@ class _RegisterConfirmationScreenState
         ),
       ),
     );
-  }
-
-  Text getData(dynamic raw) {
-    if (raw == null || raw.toString() == "") {
-      return Text(
-        "Veri girilmedi.",
-        style: TextStyle(
-          color: Colors.red.shade300,
-        ),
-      );
-    }
-
-    return Text(raw.toString());
   }
 
   Future<void> register(BuildContext context) async {
@@ -178,7 +167,7 @@ class _RegisterConfirmationScreenState
             );
           },
         ),
-        (route) => true,
+        (route) => false,
       );
     }
   }
