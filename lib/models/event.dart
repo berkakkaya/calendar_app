@@ -5,8 +5,8 @@ class EventShortForm {
   String? eventId;
   String? name;
   String? type;
-  int? startsAt;
-  int? endsAt;
+  DateTime? startsAt;
+  DateTime? endsAt;
 
   EventShortForm({
     this.eventId,
@@ -20,8 +20,12 @@ class EventShortForm {
     eventId = json['_id'];
     name = json['name'];
     type = json['type'];
-    startsAt = json['starts_at'];
-    endsAt = json['ends_at'];
+    startsAt = DateTime.fromMillisecondsSinceEpoch(
+      int.parse(json["starts_at"]),
+    );
+    endsAt = DateTime.fromMillisecondsSinceEpoch(
+      int.parse(json["ends_at"]),
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -30,8 +34,8 @@ class EventShortForm {
     data['_id'] = eventId;
     data['name'] = name;
     data['type'] = type;
-    data['starts_at'] = startsAt;
-    data['ends_at'] = endsAt;
+    data['starts_at'] = startsAt!.millisecondsSinceEpoch;
+    data['ends_at'] = endsAt!.millisecondsSinceEpoch;
 
     return data;
   }
@@ -46,8 +50,8 @@ class EventLongForm implements BaseResponse {
   String? type;
   String? createdBy;
   List<String>? participants;
-  int? startsAt;
-  int? endsAt;
+  DateTime? startsAt;
+  DateTime? endsAt;
   List<int>? remindAt;
 
   EventLongForm({
@@ -68,8 +72,12 @@ class EventLongForm implements BaseResponse {
     type = json['type'];
     createdBy = json['created_by'];
     participants = json['participants'].cast<String>();
-    startsAt = json['starts_at'];
-    endsAt = json['ends_at'];
+    startsAt = DateTime.fromMillisecondsSinceEpoch(
+      int.parse(json["starts_at"]),
+    );
+    endsAt = DateTime.fromMillisecondsSinceEpoch(
+      int.parse(json["ends_at"]),
+    );
     remindAt = json['remind_at'].cast<int>();
   }
 
