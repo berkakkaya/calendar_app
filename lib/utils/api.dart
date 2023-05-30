@@ -60,10 +60,17 @@ class ApiManager {
   }
 
   /// Sets the refresh token with given argument
-  static void setRefreshToken({
+  static void setTokens({
     String? refreshToken,
+    String? accessToken,
   }) {
-    _refreshToken = refreshToken;
+    if (refreshToken != null) {
+      _refreshToken = refreshToken;
+    }
+
+    if (accessToken != null) {
+      _accessToken = accessToken;
+    }
   }
 
   /// Gets a new access token
@@ -74,7 +81,7 @@ class ApiManager {
   ///
   /// NOTE: If an authorization error happens in this function, you should
   /// take this as an logout event.
-  static Future<ResponseStatus> getNewToken() async {
+  static Future<ResponseStatus> getNewAccessToken() async {
     if (!isReady) return ResponseStatus.none;
     if (_refreshToken == null) return ResponseStatus.authorizationError;
 
