@@ -1,4 +1,5 @@
 import 'package:calendar_app/consts/strings.dart';
+import 'package:calendar_app/screens/events/home_screen.dart';
 import 'package:calendar_app/screens/login_register/welcome_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:flutter/material.dart';
@@ -38,8 +39,11 @@ class _LoadingScreenState extends State<LoadingScreen> {
       initializeLock = true;
     });
 
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? apiUrl;
+    String? accessToken;
+    String? refreshToken;
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     // Set the API initialization
     while (apiUrl == null) {
@@ -65,21 +69,41 @@ class _LoadingScreenState extends State<LoadingScreen> {
       }
     }
 
-    // TODO: Configure the home screen logic here.
+    accessToken = sharedPreferences.getString("accessToken");
+    refreshToken = sharedPreferences.getString("refreshToken");
 
+    // If user has logged in before, go to the home screen
+    if (accessToken != null && refreshToken != null) {
+      ApiManager.setTokens(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      );
+
+      if (context.mounted) {
+        setState(() {
+          initializeLock = false;
+        });
+
+        navigateToScreen(context, const HomeScreen());
+      }
+
+      return;
+    }
+
+    // If not, navigate to the login screen (aka. Welcome Screen)
     if (context.mounted) {
       setState(() {
         initializeLock = false;
       });
 
-      navigateToLoginScreen(context);
+      navigateToScreen(context, const WelcomeScreen());
     }
   }
 
-  void navigateToLoginScreen(BuildContext context) {
+  void navigateToScreen(BuildContext context, Widget screen) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
-        builder: (context) => const WelcomeScreen(),
+        builder: (context) => screen,
       ),
     );
   }
