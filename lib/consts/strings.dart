@@ -16,3 +16,6 @@ const serverError =
 
 const emptyInputWarning =
     "Bu sayfadaki alanlar boş geçilemez. Bütün alanların dolu olup olmadığını kontrol edip yeniden deneyiniz.";
+
+const loggedOutWarning =
+    "Oturumunuz kapatıldı. Oturum açma ekranına yönlendiriliyorsunuz.";
