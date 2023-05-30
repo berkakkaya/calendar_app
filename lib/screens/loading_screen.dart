@@ -1,5 +1,5 @@
 import 'package:calendar_app/consts/strings.dart';
-import 'package:calendar_app/screens/welcome_screen.dart';
+import 'package:calendar_app/screens/login_register/welcome_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
