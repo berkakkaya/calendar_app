@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/authentication.dart';
-import 'package:calendar_app/models/exceptions.dart';
+import 'package:calendar_app/models/event.dart';
 import 'package:calendar_app/models/login_data.dart';
 import 'package:calendar_app/models/register_data.dart';
 import 'package:calendar_app/models/response_status.dart';
@@ -208,5 +208,37 @@ class ApiManager {
     }
 
     return UserList(responseStatus: ResponseStatus.success, userList: list);
+  }
+
+  /// Gets the list of events that our user has created or participating in.
+  ///
+  /// This function uses the GET /events endpoint. [EventList]'s `data`
+  /// parameter will be empty if user has no events it has participating in.
+  static Future<EventList> getEventList() async {
+    if (!isReady) return EventList(responseStatus: ResponseStatus.none);
+
+    if (!isAuthenticated) {
+      return EventList(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    final response = await _dio.get(
+      "${_apiUrl!}/events",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+    );
+
+    if (response.statusCode! == 500) {
+      return EventList(responseStatus: ResponseStatus.serverError);
+    }
+
+    if ([401, 403].contains(response.statusCode)) {
+      return EventList(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    return EventList(
+      responseStatus: ResponseStatus.success,
+      data: response.data,
+    );
   }
 }
