@@ -78,9 +78,8 @@ class ApiManager {
   ///
   /// NOTE: If an authorization error happens in this function, you should
   /// take this as an logout event.
-  static Future<ResponseStatus> getNewAccessToken() async {
-    if (!isReady) return ResponseStatus.none;
-    if (_refreshToken == null) return ResponseStatus.authorizationError;
+  static Future<String?> getNewAccessToken() async {
+    if (!isReady || _refreshToken == null) return null;
 
     final response = await _dio.post<Map<String, dynamic>>(
       "${_apiUrl!}/token",
@@ -93,11 +92,11 @@ class ApiManager {
 
     if ([400, 401].contains(response.statusCode)) {
       _refreshToken = null;
-      return ResponseStatus.authorizationError;
+      return null;
     }
 
     _accessToken = response.data!["access_token"];
-    return ResponseStatus.success;
+    return _accessToken;
   }
 
   /// Generates an authorization string based on access token or refresh token.
