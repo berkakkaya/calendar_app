@@ -90,9 +90,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               const SizedBox(height: 32),
               GestureDetector(
                 onTap: loggingIn ? null : () => goToRegisterScreen(context),
-                child: const Text(
+                child: Text(
                   "Hesabınız yok mu? Kayıt olun.",
                   textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(decoration: TextDecoration.underline),
                 ),
               ),
             ],
