@@ -19,3 +19,9 @@ const emptyInputWarning =
 
 const loggedOutWarning =
     "Oturumunuz kapatıldı. Oturum açma ekranına yönlendiriliyorsunuz.";
+
+const emptyEventsDesc =
+    "Oluşturduğunuz veya katılım sağladığınız herhangi bir etkinlik bulamadık. Etkinlik oluşturmak için sağ alttaki butonu kullanın.";
+
+const dateFormat = "d MMMM y";
+const hourMinuteFormat = "HH:mm";
