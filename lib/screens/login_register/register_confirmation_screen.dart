@@ -8,6 +8,7 @@ import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';
 import 'package:calendar_app/widgets/popups.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterConfirmationScreen extends StatefulWidget {
   final RegisterData registerData;
@@ -150,6 +151,16 @@ class _RegisterConfirmationScreenState
 
       return;
     }
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    sharedPreferences.setString("accessToken", authData.accessToken!);
+    sharedPreferences.setString("refreshToken", authData.refreshToken!);
+
+    ApiManager.setTokens(
+      accessToken: authData.accessToken!,
+      refreshToken: authData.refreshToken!,
+    );
 
     if (context.mounted) {
       Navigator.of(context).pushAndRemoveUntil(
