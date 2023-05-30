@@ -175,6 +175,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     preferences.setString("accessToken", response.accessToken!);
     preferences.setString("refreshToken", response.refreshToken!);
 
+    ApiManager.setTokens(
+      accessToken: response.accessToken!,
+      refreshToken: response.refreshToken!,
+    );
+
     if (context.mounted) {
       setState(() {
         loggingIn = false;
