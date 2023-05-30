@@ -1,6 +1,3 @@
-// TODO: Remove this dead_code flag when other TODOs has been done.
-// ignore_for_file: dead_code
-
 import 'dart:io';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/authentication.dart';
@@ -189,14 +186,6 @@ class ApiManager {
     if (!isAuthenticated) {
       return UserList(responseStatus: ResponseStatus.authorizationError);
     }
-
-    // This endpoint isn't implemented from the server side yet,
-    // we will simply raise an exception for now.
-
-    // TODO: Remove this exception when it has been implemented
-    throw NotImplementedException(
-      "This endpoint has not been implemented in server-side yet.",
-    );
 
     final response = await _dio.get(
       "${_apiUrl!}/users",
