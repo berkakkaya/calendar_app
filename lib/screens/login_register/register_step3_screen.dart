@@ -1,8 +1,10 @@
 import 'package:animations/animations.dart';
 import 'package:calendar_app/consts/colors.dart';
 import 'package:calendar_app/consts/illustrations.dart';
+import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/register_data.dart';
 import 'package:calendar_app/screens/login_register/register_confirmation_screen.dart';
+import 'package:calendar_app/widgets/popups.dart';
 import 'package:calendar_app/widgets/progress_counter.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +21,8 @@ class _RegisterStep3ScreenState extends State<RegisterStep3Screen> {
   String tcIdentityNumber = "";
   String phone = "";
   String address = "";
+
+  bool invalidIdentityNumber = false;
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +47,13 @@ class _RegisterStep3ScreenState extends State<RegisterStep3Screen> {
               ),
               const Spacer(flex: 1),
               TextField(
-                decoration: const InputDecoration(
-                  label: Text("T.C. Kimlik Numarası"),
+                decoration: InputDecoration(
+                  label: const Text("T.C. Kimlik Numarası"),
                   filled: true,
-                  prefixIcon: Icon(Icons.badge_outlined),
+                  prefixIcon: const Icon(Icons.badge_outlined),
+                  errorText: invalidIdentityNumber
+                      ? "Geçersiz T.C. kimlik numarası"
+                      : null,
                 ),
                 keyboardType: TextInputType.number,
                 onChanged: tcIdentityNumberChanged,
@@ -98,6 +105,16 @@ class _RegisterStep3ScreenState extends State<RegisterStep3Screen> {
   }
 
   void goToRegisterConfirmationScreen() {
+    if ([tcIdentityNumber, phone, address].contains("")) {
+      showWarningPopup(
+        context: context,
+        title: "Uyarı",
+        content: [const Text(emptyInputWarning)],
+      );
+
+      return;
+    }
+
     widget.registerData.tcIdentityNumber = int.tryParse(tcIdentityNumber);
     widget.registerData.phone = phone;
     widget.registerData.address = address;

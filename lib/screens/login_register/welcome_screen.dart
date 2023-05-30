@@ -111,20 +111,52 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Future<void> login(BuildContext context) async {
-    final loginData = LoginData(email: email, password: password);
-
     setState(() {
       loggingIn = true;
     });
 
+    if ([email, password].contains("")) {
+      if (context.mounted) {
+        await showWarningPopup(
+          context: context,
+          title: "Uyarı",
+          content: [const Text(emptyInputWarning)],
+        );
+
+        setState(() {
+          loggingIn = false;
+        });
+      }
+
+      return;
+    }
+
+    final loginData = LoginData(email: email, password: password);
+
     final response = await ApiManager.login(loginData: loginData);
 
-    if (response.responseStatus == ResponseStatus.wrongEmailOrPassword) {
+    if (response.responseStatus == ResponseStatus.serverError) {
       if (context.mounted) {
         await showWarningPopup(
             context: context,
             title: "Sunucu hatası",
-            content: [const Text("data")]);
+            content: [const Text(serverError)]);
+
+        setState(() {
+          loggingIn = false;
+        });
+      }
+
+      return;
+    }
+
+    if (response.responseStatus == ResponseStatus.wrongEmailOrPassword) {
+      if (context.mounted) {
+        await showWarningPopup(
+          context: context,
+          title: "Oturum açılamadı",
+          content: [const Text(wrongEmailOrPassword)],
+        );
 
         setState(() {
           loggingIn = false;

@@ -1,8 +1,10 @@
 import 'package:animations/animations.dart';
 import 'package:calendar_app/consts/colors.dart';
 import 'package:calendar_app/consts/illustrations.dart';
+import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/register_data.dart';
 import 'package:calendar_app/screens/login_register/register_step2_screen.dart';
+import 'package:calendar_app/widgets/popups.dart';
 import 'package:calendar_app/widgets/progress_counter.dart';
 import 'package:flutter/material.dart';
 
@@ -90,6 +92,14 @@ class _RegisterStep1ScreenState extends State<RegisterStep1Screen> {
   }
 
   void goToNextPage() {
+    if ([name, surname, username].contains("")) {
+      showWarningPopup(context: context, title: "Uyarı", content: [
+        const Text(emptyInputWarning),
+      ]);
+
+      return;
+    }
+
     final data = RegisterData();
 
     data.name = name;
