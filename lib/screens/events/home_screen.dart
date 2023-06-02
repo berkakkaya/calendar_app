@@ -1,8 +1,12 @@
 import 'package:calendar_app/consts/illustrations.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/event.dart';
+import 'package:calendar_app/models/response_status.dart';
+import 'package:calendar_app/utils/api.dart';
+import 'package:calendar_app/utils/checks.dart';
 import 'package:calendar_app/utils/formatter.dart';
 import 'package:calendar_app/widgets/event_card.dart';
+import 'package:calendar_app/widgets/popups.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,6 +18,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<EventShortForm> events = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchEvents();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,26 +38,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: SafeArea(
-        child: _EventView(events: [
-          EventShortForm(
-            name: "Deneme",
-            type: "Etkinlik",
-            startsAt: DateTime.now(),
-            endsAt: DateTime.now().add(const Duration(hours: 2, seconds: 15)),
-          ),
-          EventShortForm(
-            name: "Deneme 2",
-            type: "Etkinlik",
-            startsAt: DateTime.now().add(const Duration(minutes: 3)),
-            endsAt: DateTime.now().add(const Duration(hours: 2, seconds: 15)),
-          ),
-          EventShortForm(
-            name: "Deneme 3",
-            type: "Etkinlik",
-            startsAt: DateTime.now().add(const Duration(days: 3)),
-            endsAt: DateTime.now().add(const Duration(days: 2, seconds: 15)),
-          ),
-        ]),
+        child: events.isEmpty
+            ? const _EmptyEventView()
+            : _EventView(events: events),
       ),
       floatingActionButton: FloatingActionButton.extended(
         label: const Text("Etkinlik ekle"),
@@ -55,6 +48,35 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () {},
       ),
     );
+  }
+
+  Future<void> fetchEvents() async {
+    EventList? response;
+
+    bool authStatus = await checkAuthenticationStatus(
+      context: context,
+      apiCall: () async {
+        response = await ApiManager.getEventList();
+        return response!;
+      },
+    );
+
+    if (!authStatus) return;
+
+    if (response!.responseStatus == ResponseStatus.serverError &&
+        context.mounted) {
+      await showWarningPopup(
+        context: context,
+        title: "Sunucu hatası",
+        content: [
+          const Text(serverError),
+        ],
+      );
+    }
+
+    setState(() {
+      events = response!.events;
+    });
   }
 }
 
