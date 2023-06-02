@@ -120,6 +120,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
                   decoration: const InputDecoration(
                     label: Text("API URL'si"),
                   ),
+                  controller:
+                      TextEditingController(text: "http://192.168.1.1:5000"),
                   keyboardType: TextInputType.url,
                   onChanged: (text) => apiUrl = text,
                 ),
