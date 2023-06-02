@@ -104,10 +104,10 @@ class ApiManager {
   /// If requested token is null, the returned data will also be null.
   static String? getAuthorizationString({bool isAccessToken = true}) {
     if (isAccessToken) {
-      return _accessToken == null ? "Bearer $_accessToken" : null;
+      return _accessToken != null ? "Bearer $_accessToken" : null;
     }
 
-    return _refreshToken == null ? "Bearer $_refreshToken" : null;
+    return _refreshToken != null ? "Bearer $_refreshToken" : null;
   }
 
   /// Log into an account and returns tokens
