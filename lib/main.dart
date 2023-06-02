@@ -37,6 +37,10 @@ class App extends StatelessWidget {
             fontWeight: FontWeight.w600,
             color: color5,
           ),
+          labelMedium: GoogleFonts.inter(
+            fontSize: 12,
+            color: color5,
+          ),
           titleLarge: GoogleFonts.inter(
             fontWeight: FontWeight.w600,
             fontSize: 22,
@@ -96,7 +100,7 @@ class App extends StatelessWidget {
           linearTrackColor: color3,
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: color3,
+          backgroundColor: color6,
           foregroundColor: color1,
         ),
         useMaterial3: true,
