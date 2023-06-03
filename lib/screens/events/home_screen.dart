@@ -18,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<EventShortForm> events = [];
+  bool fetching = false;
 
   @override
   void initState() {
@@ -32,9 +33,15 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Hoşgeldiniz"),
         actions: [
           IconButton(
+            icon: const Icon(Icons.replay_rounded),
+            tooltip: "Yenile",
+            onPressed: fetching ? null : fetchEvents,
+          ),
+          IconButton(
             icon: const Icon(Icons.account_circle_outlined),
+            tooltip: "Profil sayfası",
             onPressed: () {},
-          )
+          ),
         ],
       ),
       body: SafeArea(
@@ -51,6 +58,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchEvents() async {
+    if (fetching) return;
+
+    setState(() {
+      fetching = true;
+    });
+
     EventList? response;
 
     bool authStatus = await checkAuthenticationStatus(
@@ -76,6 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       events = response!.events;
+      fetching = false;
     });
   }
 }
