@@ -8,3 +8,8 @@ enum ResponseStatus {
   accessDenied,
   serverError,
 }
+
+enum FormType {
+  modifyEvent,
+  createEvent,
+}
