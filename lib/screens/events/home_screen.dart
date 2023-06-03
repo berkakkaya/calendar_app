@@ -1,7 +1,7 @@
 import 'package:calendar_app/consts/illustrations.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/event.dart';
-import 'package:calendar_app/models/response_status.dart';
+import 'package:calendar_app/models/enums.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
 import 'package:calendar_app/utils/formatter.dart';

@@ -2,7 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:calendar_app/consts/colors.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/register_data.dart';
-import 'package:calendar_app/models/response_status.dart';
+import 'package:calendar_app/models/enums.dart';
 import 'package:calendar_app/screens/events/home_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';

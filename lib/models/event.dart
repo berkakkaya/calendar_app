@@ -1,5 +1,5 @@
 import 'package:calendar_app/models/base_response.dart';
-import 'package:calendar_app/models/response_status.dart';
+import 'package:calendar_app/models/enums.dart';
 
 class EventShortForm {
   String? eventId;

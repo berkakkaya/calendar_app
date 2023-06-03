@@ -1,4 +1,4 @@
-import 'package:calendar_app/models/response_status.dart';
+import 'package:calendar_app/models/enums.dart';
 
 class Authentication {
   final ResponseStatus responseStatus;

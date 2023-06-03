@@ -4,7 +4,7 @@ import 'package:calendar_app/models/authentication.dart';
 import 'package:calendar_app/models/event.dart';
 import 'package:calendar_app/models/login_data.dart';
 import 'package:calendar_app/models/register_data.dart';
-import 'package:calendar_app/models/response_status.dart';
+import 'package:calendar_app/models/enums.dart';
 import 'package:calendar_app/models/user.dart';
 import 'package:calendar_app/models/user_list.dart';
 import 'package:dio/dio.dart';
