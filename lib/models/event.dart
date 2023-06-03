@@ -83,14 +83,16 @@ class EventLongForm implements BaseResponse {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = eventId;
-    data['name'] = name;
-    data['type'] = type;
-    data['created_by'] = createdBy;
-    data['participants'] = participants;
-    data['starts_at'] = startsAt;
-    data['ends_at'] = endsAt;
-    data['remind_at'] = remindAt;
+
+    data['_id'] = eventId!;
+    data['name'] = name!;
+    data['type'] = type!;
+    data['created_by'] = createdBy!;
+    data['participants'] = participants!;
+    data['starts_at'] = startsAt!.millisecondsSinceEpoch;
+    data['ends_at'] = endsAt!.millisecondsSinceEpoch;
+    data['remind_at'] = remindAt!;
+
     return data;
   }
 }
