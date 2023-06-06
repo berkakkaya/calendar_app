@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class InfoPlaceholder extends StatelessWidget {
   final Widget icon;
   final String title;
-  final Widget content;
+  final Widget? content;
 
   const InfoPlaceholder({
     super.key,
     required this.icon,
     required this.title,
-    required this.content,
+    this.content,
   });
 
   @override
@@ -33,7 +33,7 @@ class InfoPlaceholder extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 8),
-            content,
+            content == null ? const SizedBox() : content!,
           ],
         ),
       ],
