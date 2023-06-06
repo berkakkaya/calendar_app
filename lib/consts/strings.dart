@@ -25,3 +25,4 @@ const emptyEventsDesc =
 
 const dateFormat = "d MMMM y";
 const hourMinuteFormat = "HH:mm";
+const dateAndTime = "d MMMM y, HH:mm";
