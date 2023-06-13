@@ -104,9 +104,17 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
                 title: "Etkinlik Tarihleri",
               ),
               const SizedBox(height: 32),
-              const DatePickerCard(isStartingAt: true),
+              DatePickerCard(
+                isStartingAt: true,
+                time: event.startsAt,
+                onTap: () => pickDateAndTime(isStartingAt: true),
+              ),
               const SizedBox(height: 32),
-              const DatePickerCard(isStartingAt: false),
+              DatePickerCard(
+                isStartingAt: false,
+                time: event.endsAt,
+                onTap: () => pickDateAndTime(isStartingAt: false),
+              ),
               const SizedBox(height: 32),
               const InfoPlaceholder(
                 icon: Icon(Icons.groups_outlined),
@@ -126,5 +134,53 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> pickDateAndTime({required bool isStartingAt}) async {
+    DateTime nowDate = DateTime.now();
+    TimeOfDay nowTime = TimeOfDay.now();
+
+    DateTime? date;
+    TimeOfDay? time;
+
+    date = await showDatePicker(
+      context: context,
+      initialDate: nowDate,
+      firstDate: nowDate,
+      lastDate: nowDate.add(const Duration(days: 365 * 5)),
+      helpText: "Tarih seçin",
+      cancelText: "İptal et",
+      confirmText: "Kaydet",
+      errorFormatText: "Geçersiz tarih formatı",
+      errorInvalidText: "Geçersiz tarih girişi",
+      fieldLabelText: "Tarih",
+    );
+
+    if (date == null) return;
+
+    if (context.mounted) {
+      time = await showTimePicker(
+        context: context,
+        initialTime: nowTime,
+        helpText: "Zaman seçin",
+        cancelText: "İptal et",
+        confirmText: "Kaydet",
+        hourLabelText: "Saat",
+        minuteLabelText: "Dakika",
+        errorInvalidText: "Geçersiz giriş",
+      );
+    }
+
+    if (time == null) return;
+
+    date = date.copyWith(hour: time.hour, minute: time.minute);
+
+    setState(() {
+      if (isStartingAt) {
+        event.startsAt = date;
+      } else {
+        event.endsAt = date;
+      }
+    });
   }
 }
