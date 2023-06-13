@@ -39,8 +39,8 @@ class ParticipantsCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   participantCount == 0
-                      ? "Hiç katılımcı seçilmedi"
-                      : "$participantCount katılımcı seçildi",
+                      ? "Hiç katılımcı seçilmedi."
+                      : "$participantCount katılımcı seçildi.",
                   style: Theme.of(context)
                       .textTheme
                       .labelMedium
