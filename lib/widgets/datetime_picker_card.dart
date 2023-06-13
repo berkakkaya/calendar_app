@@ -17,40 +17,43 @@ class DatePickerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: color2,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Icon(Icons.schedule_rounded, size: 24),
-            const SizedBox(width: 8),
-            Column(
+    final Widget titleText = Text(
+      isStartingAt ? "Başlangıç Tarihi" : "Bitiş Tarihi",
+      style: Theme.of(context).textTheme.titleMedium!.copyWith(color: color1),
+    );
+
+    final Widget dateText = Text(
+      time == null
+          ? "Bir zaman seçmek için dokunun."
+          : getDateFormatter(dateAndTime).format(time!),
+      style: Theme.of(context).textTheme.labelMedium!.copyWith(color: color1),
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: color2,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Icon(Icons.schedule_rounded, size: 24, color: color1),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  isStartingAt ? "Başlangıç Tarihi" : "Bitiş Tarihi",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                titleText,
                 const SizedBox(height: 8),
-                Text(
-                  time == null
-                      ? ""
-                      : getDateFormatter(dateAndTime).format(time!),
-                  style: Theme.of(context).textTheme.labelMedium,
-                )
+                dateText,
               ],
             ),
-            const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward_rounded, size: 24),
-          ],
-        ),
+          ),
+          const SizedBox(width: 16),
+          const Icon(Icons.arrow_forward_rounded, size: 24, color: color1),
+        ],
       ),
     );
   }
