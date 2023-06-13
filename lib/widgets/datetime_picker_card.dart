@@ -29,31 +29,34 @@ class DatePickerCard extends StatelessWidget {
       style: Theme.of(context).textTheme.labelMedium!.copyWith(color: color1),
     );
 
-    return Container(
-      decoration: BoxDecoration(
-        color: color2,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Icon(Icons.schedule_rounded, size: 24, color: color1),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                titleText,
-                const SizedBox(height: 8),
-                dateText,
-              ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color2,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(Icons.schedule_rounded, size: 24, color: color1),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  titleText,
+                  const SizedBox(height: 8),
+                  dateText,
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          const Icon(Icons.arrow_forward_rounded, size: 24, color: color1),
-        ],
+            const SizedBox(width: 16),
+            const Icon(Icons.arrow_forward_rounded, size: 24, color: color1),
+          ],
+        ),
       ),
     );
   }
