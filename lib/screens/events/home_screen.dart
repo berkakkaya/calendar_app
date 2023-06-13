@@ -1,7 +1,10 @@
+import 'package:animations/animations.dart';
+import 'package:calendar_app/consts/colors.dart';
 import 'package:calendar_app/consts/illustrations.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/event.dart';
 import 'package:calendar_app/models/enums.dart';
+import 'package:calendar_app/screens/events/add_modify_event_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
 import 'package:calendar_app/utils/formatter.dart';
@@ -19,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<EventShortForm> events = [];
   bool fetching = false;
+  bool addEventLock = false;
 
   @override
   void initState() {
@@ -49,10 +53,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ? const _EmptyEventView()
             : _EventView(events: events),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text("Etkinlik ekle"),
-        icon: const Icon(Icons.add_rounded),
-        onPressed: () {},
+      floatingActionButton: OpenContainer(
+        openBuilder: (context, action) {
+          return const AddModifyEventScreen(formType: FormType.createEvent);
+        },
+        closedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        closedColor: color6,
+        closedBuilder: (context, action) {
+          return const SizedBox(
+            width: 56,
+            height: 56,
+            child: Center(
+              child: Icon(Icons.add_rounded, color: color1),
+            ),
+          );
+        },
+        onClosed: (data) => fetchEvents(),
+        transitionType: ContainerTransitionType.fadeThrough,
+        middleColor: color1,
+        transitionDuration: const Duration(milliseconds: 500),
+        tappable: !addEventLock,
       ),
     );
   }
@@ -90,6 +112,25 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       events = response!.events;
       fetching = false;
+    });
+  }
+
+  Future<void> goToAddEventScreen() async {
+    if (addEventLock) return;
+
+    setState(() {
+      addEventLock = true;
+    });
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            const AddModifyEventScreen(formType: FormType.createEvent),
+      ),
+    );
+
+    setState(() {
+      addEventLock = false;
     });
   }
 }
