@@ -114,25 +114,6 @@ class _HomeScreenState extends State<HomeScreen> {
       fetching = false;
     });
   }
-
-  Future<void> goToAddEventScreen() async {
-    if (addEventLock) return;
-
-    setState(() {
-      addEventLock = true;
-    });
-
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) =>
-            const AddModifyEventScreen(formType: FormType.createEvent),
-      ),
-    );
-
-    setState(() {
-      addEventLock = false;
-    });
-  }
 }
 
 class _EmptyEventView extends StatelessWidget {
