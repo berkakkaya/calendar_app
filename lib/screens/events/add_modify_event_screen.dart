@@ -47,7 +47,7 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
     final eventTypeField = TextField(
       decoration: const InputDecoration(
         labelText: "Etkinlik türü",
-        prefixIcon: Icon(Icons.label_outline_rounded),
+        prefixIcon: Icon(Icons.category_outlined),
       ),
       onChanged: (text) => event.type = text,
     );
@@ -91,7 +91,7 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
           child: ListBody(
             children: [
               const InfoPlaceholder(
-                icon: Icon(Icons.category_outlined),
+                icon: Icon(Icons.event_note_rounded),
                 title: "Ad ve Tür",
               ),
               const SizedBox(height: 32),
@@ -116,7 +116,7 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
               const ParticipantsCard(participantCount: 0),
               const SizedBox(height: 32),
               const InfoPlaceholder(
-                icon: Icon(Icons.notifications_none_rounded),
+                icon: Icon(Icons.alarm_rounded),
                 title: "Bildirim",
               ),
               const SizedBox(height: 32),

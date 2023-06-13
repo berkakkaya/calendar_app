@@ -40,7 +40,11 @@ class DatePickerCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(Icons.schedule_rounded, size: 24, color: color1),
+            Icon(
+              (isStartingAt ? Icons.history_rounded : Icons.update_rounded),
+              size: 24,
+              color: color1,
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
