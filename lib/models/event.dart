@@ -66,6 +66,17 @@ class EventLongForm implements BaseResponse {
     this.remindAt,
   });
 
+  bool isThereAnyReqiredNull() {
+    if ([
+      name,
+      type,
+      startsAt,
+      endsAt,
+    ].contains(null)) return true;
+
+    return false;
+  }
+
   EventLongForm.fromJson(this.responseStatus, Map<String, dynamic> json) {
     eventId = json['_id'];
     name = json['name'];
