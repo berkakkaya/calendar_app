@@ -66,13 +66,18 @@ class EventLongForm implements BaseResponse {
     this.remindAt,
   });
 
-  bool isThereAnyReqiredNull() {
+  bool isThereAnyReqiredEmpty() {
     if ([
       name,
       type,
       startsAt,
       endsAt,
     ].contains(null)) return true;
+
+    if ([
+      name,
+      type,
+    ].contains("")) return true;
 
     return false;
   }
