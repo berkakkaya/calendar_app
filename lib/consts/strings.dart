@@ -23,6 +23,12 @@ const loggedOutWarning =
 const emptyEventsDesc =
     "Oluşturduğunuz veya katılım sağladığınız herhangi bir etkinlik bulamadık. Etkinlik oluşturmak için sağ alttaki butonu kullanın.";
 
+const modifyEventEmptyWarning =
+    "Katılımcılar ve bildirim haricinde diğer alanların doldurulması zorunludur.";
+
+const invalidDateWarning =
+    "Lütfen tarihlerinizin doğru yapılandırıldığından emin olup yeniden deneyiniz.";
+
 const dateFormat = "d MMMM y";
 const hourMinuteFormat = "HH:mm";
 const dateAndTime = "d MMMM y, HH:mm";
