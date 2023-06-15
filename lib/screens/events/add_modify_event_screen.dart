@@ -35,6 +35,10 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
   bool loading = true;
   bool isSaving = false;
 
+  final controllerEventName = TextEditingController();
+  final controllerEventType = TextEditingController();
+  final controllerEventNotification = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -86,7 +90,7 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
         labelText: "Etkinlik adı",
         prefixIcon: Icon(Icons.event_rounded),
       ),
-      onChanged: (text) => event.name = text,
+      controller: controllerEventName,
     );
 
     final eventTypeField = TextField(
@@ -94,7 +98,7 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
         labelText: "Etkinlik türü",
         prefixIcon: Icon(Icons.category_outlined),
       ),
-      onChanged: (text) => event.type = text,
+      controller: controllerEventType,
     );
 
     Widget notifyTextField = Row(
@@ -108,8 +112,8 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
             ],
+            controller: controllerEventNotification,
             keyboardType: TextInputType.number,
-            onChanged: changeRemindAt,
           ),
         ),
         const SizedBox(width: 16),
@@ -169,11 +173,6 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
         ],
       ),
     );
-  }
-
-  void changeRemindAt(String text) {
-    final int? parsed = int.tryParse(text);
-    if (parsed != null) event.remindAt = [parsed];
   }
 
   Future<void> getUserList() async {
@@ -277,6 +276,27 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
     setState(() {
       isSaving = true;
     });
+
+    event.name = controllerEventName.text;
+    event.type = controllerEventType.text;
+
+    try {
+      event.remindAt = <int>[int.parse(controllerEventNotification.text)];
+    } on FormatException {
+      if (context.mounted) {
+        showWarningPopup(
+          context: context,
+          title: "Geçersiz Bildirim Girişi",
+          content: [const Text(invalidNotificationInputWarning)],
+        );
+
+        setState(() {
+          isSaving = false;
+        });
+      }
+
+      return;
+    }
 
     // Check if any null value exists in required fields
     if (event.isThereAnyReqiredEmpty()) {
