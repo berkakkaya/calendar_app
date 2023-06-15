@@ -29,6 +29,9 @@ const modifyEventEmptyWarning =
 const invalidDateWarning =
     "Lütfen tarihlerinizin doğru yapılandırıldığından emin olup yeniden deneyiniz.";
 
+const invalidNotificationInputWarning =
+    "Lütfen bildirim bölümünün sadece sayı olduğunu kontrol edip yeniden deneyin.";
+
 const dateFormat = "d MMMM y";
 const hourMinuteFormat = "HH:mm";
 const dateAndTime = "d MMMM y, HH:mm";
