@@ -241,4 +241,51 @@ class ApiManager {
       data: response.data,
     );
   }
+
+  /// Creates the event with given info. This function uses the POST /event
+  /// endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest] If the event form is invalid
+  /// - [ResponseStatus.success]: If the event has been created successfully
+  static Future<EventLongForm> createEvent({
+    required EventLongForm event,
+  }) async {
+    if (!isReady) return EventLongForm(responseStatus: ResponseStatus.none);
+
+    if (!isAuthenticated) {
+      return EventLongForm(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    final response = await _dio.post(
+      "${_apiUrl!}/event",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: {
+        "name": event.name,
+        "type": event.type,
+        "participants": event.participants,
+        "starts_at": event.startsAt!.millisecondsSinceEpoch,
+        "ends_at": event.endsAt!.millisecondsSinceEpoch,
+        "remind_at": event.remindAt,
+      },
+    );
+
+    if (response.statusCode! == 500) {
+      return EventLongForm(responseStatus: ResponseStatus.serverError);
+    }
+
+    if ([401, 403].contains(response.statusCode)) {
+      return EventLongForm(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    if (response.statusCode! == 400) {
+      return EventLongForm(responseStatus: ResponseStatus.invalidRequest);
+    }
+
+    return EventLongForm.fromJson(ResponseStatus.success, response.data);
+  }
 }
