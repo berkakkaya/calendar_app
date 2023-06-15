@@ -21,10 +21,10 @@ class EventShortForm {
     name = json['name'];
     type = json['type'];
     startsAt = DateTime.fromMillisecondsSinceEpoch(
-      int.parse(json["starts_at"]),
+      (json["starts_at"] * 1000).toInt(),
     );
     endsAt = DateTime.fromMillisecondsSinceEpoch(
-      int.parse(json["ends_at"]),
+      (json["ends_at"] * 1000).toInt(),
     );
   }
 
@@ -88,13 +88,9 @@ class EventLongForm implements BaseResponse {
     type = json['type'];
     createdBy = json['created_by'];
     participants = json['participants'].cast<String>();
-    startsAt = DateTime.fromMillisecondsSinceEpoch(
-      int.parse(json["starts_at"]),
-    );
-    endsAt = DateTime.fromMillisecondsSinceEpoch(
-      int.parse(json["ends_at"]),
-    );
-    remindAt = json['remind_at'].cast<int>();
+    startsAt = DateTime.fromMillisecondsSinceEpoch(json["starts_at"]);
+    endsAt = DateTime.fromMillisecondsSinceEpoch(json["ends_at"]);
+    remindAt = List<int>.from(json["remind_at"]);
   }
 
   Map<String, dynamic> toJson() {
