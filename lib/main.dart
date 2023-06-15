@@ -111,6 +111,13 @@ class App extends StatelessWidget {
           backgroundColor: color6,
           foregroundColor: color1,
         ),
+        checkboxTheme: Theme.of(context).checkboxTheme.copyWith(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(3),
+              ),
+              fillColor: const MaterialStatePropertyAll(color2),
+              checkColor: const MaterialStatePropertyAll(color1),
+            ),
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
