@@ -8,10 +8,12 @@ import 'package:calendar_app/screens/events/add_participants_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
 import 'package:calendar_app/utils/datetime_picking.dart';
-import 'package:calendar_app/widgets/datetime_picker_card.dart';
+import 'package:calendar_app/utils/event_management.dart';
+import 'package:calendar_app/widgets/date_picker_card.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';
 import 'package:calendar_app/widgets/participants_card.dart';
 import 'package:calendar_app/widgets/popups.dart';
+import 'package:calendar_app/widgets/time_picker_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -32,8 +34,13 @@ class AddModifyEventScreen extends StatefulWidget {
 class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
   late EventLongForm event;
   List<UserCheckboxData> userCheckData = [];
+
   bool loading = true;
   bool isSaving = false;
+
+  DateTime? date;
+  TimeOfDay? timeStart;
+  TimeOfDay? timeEnd;
 
   final controllerEventName = TextEditingController();
   final controllerEventType = TextEditingController();
@@ -139,19 +146,19 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
           const SizedBox(height: 32),
           const InfoPlaceholder(
             icon: Icon(Icons.schedule_rounded),
-            title: "Etkinlik Tarihleri",
+            title: "Tarih ve Zaman",
           ),
           const SizedBox(height: 32),
           DatePickerCard(
-            isStartingAt: true,
-            time: event.startsAt,
-            onTap: () => pickTime(isStartingAt: true),
+            time: date,
+            onTap: pickDate,
           ),
           const SizedBox(height: 32),
-          DatePickerCard(
-            isStartingAt: false,
-            time: event.endsAt,
-            onTap: () => pickTime(isStartingAt: false),
+          TimePickerCard(
+            start: timeStart,
+            end: timeEnd,
+            onTapToStart: () => _pickTime(isStartingAt: true),
+            onTapToEnd: () => _pickTime(isStartingAt: false),
           ),
           const SizedBox(height: 32),
           const InfoPlaceholder(
@@ -219,27 +226,89 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
     });
   }
 
-  Future<void> pickTime({required bool isStartingAt}) async {
-    final DateTime? picked = await pickDateAndTime(context);
+  Future<void> pickDate() async {
+    date = await getDate(context);
 
-    if (picked == null) return;
+    if (context.mounted) {
+      setState(() {});
+    }
+  }
 
-    setState(() {
-      if (isStartingAt) {
-        event.startsAt = picked;
-        return;
-      }
+  Future<void> _pickTime({required bool isStartingAt}) async {
+    final picked = await getTime(context);
 
-      event.endsAt = picked;
-    });
+    if (isStartingAt) {
+      timeStart = picked;
+    } else {
+      timeEnd = picked;
+    }
+
+    if (context.mounted) {
+      setState(() {});
+    }
   }
 
   void routeSaveAction() {
     if (widget.formType == FormType.createEvent) {
-      createEvent();
+      pageCreateEvent();
     }
 
     // TODO: Connect the modify event function here
+  }
+
+  Future<void> pageCreateEvent() async {
+    if (isSaving) return;
+
+    setState(() {
+      isSaving = true;
+    });
+
+    event.name = controllerEventName.text;
+    event.type = controllerEventType.text;
+
+    event.startsAt = date?.copyWith(
+      hour: timeStart?.hour,
+      minute: timeStart?.minute,
+    );
+
+    event.endsAt = date?.copyWith(
+      hour: timeEnd?.hour,
+      minute: timeEnd?.minute,
+    );
+
+    final notificationField = controllerEventNotification.text;
+
+    if (notificationField != "") {
+      try {
+        event.remindAt = [int.parse(controllerEventNotification.text)];
+      } on FormatException {
+        await showWarningPopup(
+          context: context,
+          title: "Geçersiz bildirim girişi",
+          content: [const Text(invalidNotificationInputWarning)],
+        );
+
+        if (context.mounted) {
+          setState(() {
+            isSaving = false;
+          });
+        }
+
+        return;
+      }
+    }
+
+    bool operationSuccess = false;
+
+    if (context.mounted) {
+      operationSuccess = await createEvent(context: context, event: event);
+
+      setState(() {
+        isSaving = false;
+      });
+    }
+
+    if (operationSuccess && context.mounted) Navigator.of(context).pop();
   }
 
   Future<void> goToAddParticipantsScreen(BuildContext context) async {
@@ -268,137 +337,5 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
         if (user.checked) event.participants!.add(user.user.userId);
       }
     });
-  }
-
-  Future<void> createEvent() async {
-    if (isSaving) return;
-
-    setState(() {
-      isSaving = true;
-    });
-
-    event.name = controllerEventName.text;
-    event.type = controllerEventType.text;
-
-    try {
-      event.remindAt = <int>[int.parse(controllerEventNotification.text)];
-    } on FormatException {
-      if (context.mounted) {
-        showWarningPopup(
-          context: context,
-          title: "Geçersiz Bildirim Girişi",
-          content: [const Text(invalidNotificationInputWarning)],
-        );
-
-        setState(() {
-          isSaving = false;
-        });
-      }
-
-      return;
-    }
-
-    // Check if any null value exists in required fields
-    if (event.isThereAnyReqiredEmpty()) {
-      showWarningPopup(
-        context: context,
-        title: "Boş giriş",
-        content: [const Text(modifyEventEmptyWarning)],
-      );
-
-      setState(() {
-        isSaving = false;
-      });
-
-      return;
-    }
-
-    // Check if date data is valid
-    DateTime now = DateTime.now();
-    List<bool> requiredDateConditions = [];
-
-    requiredDateConditions.add(event.startsAt!.isAfter(now));
-    requiredDateConditions.add(event.endsAt!.isAfter(event.startsAt!));
-    requiredDateConditions.add(
-      !event.startsAt!.isAtSameMomentAs(event.endsAt!),
-    );
-
-    if (requiredDateConditions.contains(false)) {
-      showWarningPopup(
-        context: context,
-        title: "Geçersiz tarih girişi",
-        content: [const Text(invalidDateWarning)],
-      );
-
-      setState(() {
-        isSaving = false;
-      });
-
-      return;
-    }
-
-    // Try to create the event
-    late EventLongForm response;
-
-    final isLoggedIn = await checkAuthenticationStatus(
-      context: context,
-      apiCall: () async {
-        response = await ApiManager.createEvent(event: event);
-        return response;
-      },
-    );
-
-    if (!isLoggedIn) {
-      setState(() {
-        isSaving = false;
-      });
-
-      return;
-    }
-
-    if (response.responseStatus == ResponseStatus.serverError) {
-      if (context.mounted) {
-        await showWarningPopup(
-          context: context,
-          title: "Sunucu hatası",
-          content: [const Text(serverError)],
-        );
-      }
-
-      if (context.mounted) {
-        setState(() {
-          isSaving = false;
-        });
-      }
-
-      return;
-    }
-
-    if (response.responseStatus == ResponseStatus.invalidRequest) {
-      if (context.mounted) {
-        await showWarningPopup(
-          context: context,
-          title: "Geçersiz giriş",
-          content: [const Text(modifyEventEmptyWarning)],
-        );
-      }
-
-      if (context.mounted) {
-        setState(() {
-          isSaving = false;
-        });
-      }
-
-      return;
-    }
-
-    // Operation is successful, return to the previous screen
-    if (context.mounted) {
-      setState(() {
-        isSaving = false;
-      });
-
-      Navigator.of(context).pop();
-    }
   }
 }

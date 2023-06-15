@@ -4,13 +4,11 @@ import 'package:calendar_app/utils/formatter.dart';
 import 'package:flutter/material.dart';
 
 class DatePickerCard extends StatelessWidget {
-  final bool isStartingAt;
   final DateTime? time;
   final void Function()? onTap;
 
   const DatePickerCard({
     super.key,
-    required this.isStartingAt,
     this.time,
     this.onTap,
   });
@@ -18,14 +16,14 @@ class DatePickerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Widget titleText = Text(
-      isStartingAt ? "Başlangıç Tarihi" : "Bitiş Tarihi",
+      "Etkinlik Tarihi",
       style: Theme.of(context).textTheme.titleMedium!.copyWith(color: color1),
     );
 
     final Widget dateText = Text(
       time == null
-          ? "Bir zaman seçmek için dokunun."
-          : getDateFormatter(dateAndTime).format(time!),
+          ? "Bir tarih seçmek için dokunun."
+          : getDateFormatter(dateFormat).format(time!),
       style: Theme.of(context).textTheme.labelMedium!.copyWith(color: color1),
     );
 
@@ -40,8 +38,8 @@ class DatePickerCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(
-              (isStartingAt ? Icons.history_rounded : Icons.update_rounded),
+            const Icon(
+              Icons.calendar_month_outlined,
               size: 24,
               color: color1,
             ),
