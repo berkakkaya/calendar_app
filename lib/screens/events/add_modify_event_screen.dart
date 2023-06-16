@@ -2,11 +2,9 @@ import 'package:animations/animations.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/enums.dart';
 import 'package:calendar_app/models/event.dart';
+import 'package:calendar_app/models/user.dart';
 import 'package:calendar_app/models/user_checkbox_data.dart';
-import 'package:calendar_app/models/user_list.dart';
 import 'package:calendar_app/screens/events/add_participants_screen.dart';
-import 'package:calendar_app/utils/api.dart';
-import 'package:calendar_app/utils/checks.dart';
 import 'package:calendar_app/utils/datetime_picking.dart';
 import 'package:calendar_app/utils/event_management.dart';
 import 'package:calendar_app/widgets/date_picker_card.dart';
@@ -20,11 +18,13 @@ import 'package:flutter/services.dart';
 class AddModifyEventScreen extends StatefulWidget {
   final FormType formType;
   final EventLongForm? event;
+  final List<UserNonResponse> userList;
 
   const AddModifyEventScreen({
     super.key,
     required this.formType,
     this.event,
+    required this.userList,
   });
 
   @override
@@ -62,7 +62,7 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
       );
     }
 
-    getUserList();
+    prepareUserCheckboxList();
   }
 
   @override
@@ -157,8 +157,8 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
           TimePickerCard(
             start: timeStart,
             end: timeEnd,
-            onTapToStart: () => _pickTime(isStartingAt: true),
-            onTapToEnd: () => _pickTime(isStartingAt: false),
+            onTapToStart: () => pickTime(isStartingAt: true),
+            onTapToEnd: () => pickTime(isStartingAt: false),
           ),
           const SizedBox(height: 32),
           const InfoPlaceholder(
@@ -182,37 +182,13 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
     );
   }
 
-  Future<void> getUserList() async {
-    late UserList userData;
-
-    final bool isLoggedIn = await checkAuthenticationStatus(
-      context: context,
-      apiCall: () async {
-        userData = await ApiManager.getUsersList();
-
-        return userData;
-      },
-    );
-
-    if (!isLoggedIn) return;
-
-    if (userData.responseStatus == ResponseStatus.serverError) {
-      if (context.mounted) {
-        await showWarningPopup(
-          context: context,
-          title: "Sunucu hatası",
-          content: [const Text(serverError)],
-        );
-      }
-
-      return;
+  Future<void> prepareUserCheckboxList() async {
+    for (final user in widget.userList) {
+      userCheckData.add(UserCheckboxData(user: user));
     }
 
-    userData.userList?.forEach((user) {
-      userCheckData.add(UserCheckboxData(user: user));
-    });
-
-    // Check the participants from the previous state
+    // Check the boxes of users that has been participating
+    // if we're editing an existing event
     event.participants?.forEach((participantId) {
       final index = userCheckData.indexWhere(
         (checkData) => checkData.user.userId == participantId,
@@ -234,7 +210,7 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
     }
   }
 
-  Future<void> _pickTime({required bool isStartingAt}) async {
+  Future<void> pickTime({required bool isStartingAt}) async {
     final picked = await getTime(context);
 
     if (isStartingAt) {
@@ -330,12 +306,14 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
 
     if (users == null) return;
 
-    setState(() {
-      event.participants = [];
+    final participants = <String>[];
 
-      for (UserCheckboxData user in users) {
-        if (user.checked) event.participants!.add(user.user.userId);
-      }
+    for (final user in userCheckData) {
+      if (user.checked) participants.add(user.user.userId);
+    }
+
+    setState(() {
+      event.participants = participants;
     });
   }
 }

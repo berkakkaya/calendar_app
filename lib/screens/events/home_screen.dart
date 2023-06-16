@@ -4,6 +4,8 @@ import 'package:calendar_app/consts/illustrations.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/event.dart';
 import 'package:calendar_app/models/enums.dart';
+import 'package:calendar_app/models/user.dart';
+import 'package:calendar_app/models/user_list.dart';
 import 'package:calendar_app/screens/events/add_modify_event_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
@@ -21,13 +23,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<EventShortForm> events = [];
+  List<UserNonResponse> users = [];
+
   bool fetching = false;
   bool addEventLock = false;
 
   @override
   void initState() {
     super.initState();
-    fetchEvents();
+    fetchData(fetchEvents: true, fetchUsers: true);
   }
 
   @override
@@ -39,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.replay_rounded),
             tooltip: "Yenile",
-            onPressed: fetching ? null : fetchEvents,
+            onPressed: fetching ? null : () => fetchData(fetchEvents: true),
           ),
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
@@ -48,71 +52,138 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: events.isEmpty
-            ? const _EmptyEventView()
-            : _EventView(events: events),
-      ),
+      body: events.isEmpty
+          ? const _EmptyEventView()
+          : _EventView(eventsSorted: events),
       floatingActionButton: OpenContainer(
         openBuilder: (context, action) {
-          return const AddModifyEventScreen(formType: FormType.createEvent);
+          return AddModifyEventScreen(
+            formType: FormType.createEvent,
+            userList: users,
+          );
         },
         closedShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         closedColor: color6,
         closedBuilder: (context, action) {
-          return const SizedBox(
+          return SizedBox(
             width: 56,
             height: 56,
             child: Center(
-              child: Icon(Icons.add_rounded, color: color1),
+              child: (addEventLock || fetching)
+                  ? _getFabProgressIndicator()
+                  : const Icon(Icons.add_rounded, color: color1),
             ),
           );
         },
-        onClosed: (data) => fetchEvents(),
+        onClosed: (data) => fetchData(fetchEvents: true),
         transitionType: ContainerTransitionType.fadeThrough,
         middleColor: color1,
         transitionDuration: const Duration(milliseconds: 500),
-        tappable: !addEventLock,
+        tappable: !addEventLock && !fetching,
       ),
     );
   }
 
-  Future<void> fetchEvents() async {
+  SizedBox _getFabProgressIndicator() {
+    return const SizedBox.square(
+      dimension: 24,
+      child: CircularProgressIndicator(
+        strokeWidth: 3,
+        color: color1,
+      ),
+    );
+  }
+
+  Future<void> fetchData({
+    bool fetchEvents = false,
+    bool fetchUsers = false,
+  }) async {
     if (fetching) return;
 
     setState(() {
       fetching = true;
     });
 
-    EventList? response;
+    if (fetchEvents && context.mounted) {
+      final EventList rawEvents = await _fetchEvents();
+
+      if (rawEvents.responseStatus == ResponseStatus.success) {
+        events = rawEvents.events;
+        events.sort((a, b) => a.startsAt!.compareTo(b.startsAt!));
+      }
+    }
+
+    if (fetchUsers && context.mounted) {
+      final UserList rawUsers = await _fetchUserList();
+
+      if (rawUsers.responseStatus == ResponseStatus.success) {
+        users = rawUsers.userList!;
+      }
+    }
+
+    setState(() {
+      fetching = false;
+    });
+  }
+
+  Future<EventList> _fetchEvents() async {
+    late EventList response;
 
     bool authStatus = await checkAuthenticationStatus(
       context: context,
       apiCall: () async {
         response = await ApiManager.getEventList();
-        return response!;
+        return response;
       },
     );
 
-    if (!authStatus) return;
+    if (!authStatus) {
+      return EventList(
+        responseStatus: ResponseStatus.authorizationError,
+      );
+    }
 
-    if (response!.responseStatus == ResponseStatus.serverError &&
+    if (response.responseStatus == ResponseStatus.serverError) {
+      if (context.mounted) {
+        await showWarningPopup(
+          context: context,
+          title: "Sunucu hatası",
+          content: [
+            const Text(serverError),
+          ],
+        );
+      }
+
+      return EventList(responseStatus: ResponseStatus.serverError);
+    }
+
+    return response;
+  }
+
+  Future<UserList> _fetchUserList() async {
+    late UserList userData;
+
+    await checkAuthenticationStatus(
+      context: context,
+      apiCall: () async {
+        userData = await ApiManager.getUsersList();
+
+        return userData;
+      },
+    );
+
+    if (userData.responseStatus == ResponseStatus.serverError &&
         context.mounted) {
       await showWarningPopup(
         context: context,
         title: "Sunucu hatası",
-        content: [
-          const Text(serverError),
-        ],
+        content: [const Text(serverError)],
       );
     }
 
-    setState(() {
-      events = response!.events;
-      fetching = false;
-    });
+    return userData;
   }
 }
 
@@ -150,13 +221,13 @@ class _EmptyEventView extends StatelessWidget {
 }
 
 class _EventView extends StatelessWidget {
-  final List<EventShortForm> events;
+  final List<EventShortForm> eventsSorted;
 
-  const _EventView({required this.events});
+  const _EventView({required this.eventsSorted});
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> eventList = groupEvents(context, events);
+    final List<Widget> eventList = groupEvents(context, eventsSorted);
 
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 32, 16, 96),
@@ -167,9 +238,11 @@ class _EventView extends StatelessWidget {
   }
 }
 
-List<Widget> groupEvents(BuildContext context, List<EventShortForm> events) {
-  List<EventShortForm> eventsLocal = List.from(events);
-  eventsLocal.sort((a, b) => a.startsAt!.compareTo(a.endsAt!));
+List<Widget> groupEvents(
+  BuildContext context,
+  List<EventShortForm> eventsSorted,
+) {
+  List<EventShortForm> eventsLocal = List.from(eventsSorted);
 
   final now = DateTime.now();
 
