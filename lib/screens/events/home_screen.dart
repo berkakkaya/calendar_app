@@ -1,12 +1,10 @@
-import 'package:animations/animations.dart';
-import 'package:calendar_app/consts/colors.dart';
 import 'package:calendar_app/consts/illustrations.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/event.dart';
 import 'package:calendar_app/models/enums.dart';
 import 'package:calendar_app/models/user.dart';
-import 'package:calendar_app/models/user_list.dart';
 import 'package:calendar_app/screens/events/add_modify_event_screen.dart';
+import 'package:calendar_app/utils/animations/sliding_scaled_page_transition.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
 import 'package:calendar_app/utils/formatter.dart';
@@ -31,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    fetchData(fetchEvents: true, fetchUsers: true);
+    fetchData(fetchEvents: true);
   }
 
   @override
@@ -55,50 +53,17 @@ class _HomeScreenState extends State<HomeScreen> {
       body: events.isEmpty
           ? const _EmptyEventView()
           : _EventView(eventsSorted: events),
-      floatingActionButton: OpenContainer(
-        openBuilder: (context, action) {
-          return AddModifyEventScreen(
-            formType: FormType.createEvent,
-            userList: users,
-          );
-        },
-        closedShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        closedColor: color6,
-        closedBuilder: (context, action) {
-          return SizedBox(
-            width: 56,
-            height: 56,
-            child: Center(
-              child: (addEventLock || fetching)
-                  ? _getFabProgressIndicator()
-                  : const Icon(Icons.add_rounded, color: color1),
-            ),
-          );
-        },
-        onClosed: (data) => fetchData(fetchEvents: true),
-        transitionType: ContainerTransitionType.fadeThrough,
-        middleColor: color1,
-        transitionDuration: const Duration(milliseconds: 500),
-        tappable: !addEventLock && !fetching,
-      ),
-    );
-  }
-
-  SizedBox _getFabProgressIndicator() {
-    return const SizedBox.square(
-      dimension: 24,
-      child: CircularProgressIndicator(
-        strokeWidth: 3,
-        color: color1,
+      floatingActionButton: FloatingActionButton(
+        onPressed: (addEventLock || fetching)
+            ? null
+            : () => goToAddEventScreen(context),
+        child: const Icon(Icons.add_rounded),
       ),
     );
   }
 
   Future<void> fetchData({
     bool fetchEvents = false,
-    bool fetchUsers = false,
   }) async {
     if (fetching) return;
 
@@ -112,14 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
       if (rawEvents.responseStatus == ResponseStatus.success) {
         events = rawEvents.events;
         events.sort((a, b) => a.startsAt!.compareTo(b.startsAt!));
-      }
-    }
-
-    if (fetchUsers && context.mounted) {
-      final UserList rawUsers = await _fetchUserList();
-
-      if (rawUsers.responseStatus == ResponseStatus.success) {
-        users = rawUsers.userList!;
       }
     }
 
@@ -162,28 +119,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return response;
   }
 
-  Future<UserList> _fetchUserList() async {
-    late UserList userData;
-
-    await checkAuthenticationStatus(
-      context: context,
-      apiCall: () async {
-        userData = await ApiManager.getUsersList();
-
-        return userData;
+  Future<void> goToAddEventScreen(BuildContext context) async {
+    await Navigator.of(context).push(PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return const AddModifyEventScreen(
+          formType: FormType.createEvent,
+        );
       },
-    );
+      transitionsBuilder: SlidingScaledPageTransition.generate,
+      barrierColor: SlidingScaledPageTransition.barrierColor,
+      transitionDuration: SlidingScaledPageTransition.duration,
+      reverseTransitionDuration: SlidingScaledPageTransition.duration,
+    ));
 
-    if (userData.responseStatus == ResponseStatus.serverError &&
-        context.mounted) {
-      await showWarningPopup(
-        context: context,
-        title: "Sunucu hatası",
-        content: [const Text(serverError)],
-      );
+    if (context.mounted) {
+      await fetchData(fetchEvents: true);
     }
-
-    return userData;
   }
 }
 
