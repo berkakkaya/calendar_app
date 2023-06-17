@@ -13,7 +13,7 @@ class User implements BaseResponse {
   User({required this.responseStatus, this.name, this.surname, this.username});
 
   User.fromJson(this.responseStatus, Map<String, dynamic> json) {
-    name = json['_id'];
+    userId = json['_id'];
     name = json['name'];
     surname = json['surname'];
     username = json['username'];
