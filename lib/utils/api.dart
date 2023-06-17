@@ -242,13 +242,57 @@ class ApiManager {
     );
   }
 
+  /// Gets the user with given user ID. This function uses the GET /user
+  /// endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest]: If the user data is invalid
+  /// - [ResponseStatus.success]: If the user has been got successfully
+  static Future<User> getUser({String? userId}) async {
+    if (!isReady) return User(responseStatus: ResponseStatus.none);
+
+    if (!isAuthenticated) {
+      return User(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    Map<String, String> data = {};
+
+    if (userId != null) {
+      data["user_id"] = userId;
+    }
+
+    final response = await _dio.get(
+      "$_apiUrl/user",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: data,
+    );
+
+    if (response.statusCode! == 500) {
+      return User(responseStatus: ResponseStatus.serverError);
+    }
+
+    if ([401, 403].contains(response.statusCode)) {
+      return User(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    if (response.statusCode! == 404) {
+      return User(responseStatus: ResponseStatus.notFound);
+    }
+
+    return User.fromJson(ResponseStatus.success, response.data);
+  }
+
   /// Creates the event with given info. This function uses the POST /event
   /// endpoint.
   ///
   /// This route can return the following response codes:
   /// - [ResponseStatus.authorizationError]: If access token is invalid
   /// - [ResponseStatus.serverError]: If an server error is occured
-  /// - [ResponseStatus.invalidRequest] If the event form is invalid
+  /// - [ResponseStatus.invalidRequest]: If the event form is invalid
   /// - [ResponseStatus.success]: If the event has been created successfully
   static Future<EventLongForm> createEvent({
     required EventLongForm event,
