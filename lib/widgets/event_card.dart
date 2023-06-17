@@ -1,6 +1,8 @@
 import 'package:calendar_app/consts/colors.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/event.dart';
+import 'package:calendar_app/screens/events/view_event_screen.dart';
+import 'package:calendar_app/utils/animations/sliding_scaled_page_transition.dart';
 import 'package:calendar_app/utils/formatter.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +19,7 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {}, // TODO: Complete this later
+      onTap: () => goToViewEventScreen(context), // TODO: Complete this later
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -51,6 +53,18 @@ class EventCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> goToViewEventScreen(BuildContext context) async {
+    await Navigator.of(context).push(PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return ViewEventScreen(event: event);
+      },
+      transitionsBuilder: SlidingScaledPageTransition.generate,
+      barrierColor: SlidingScaledPageTransition.barrierColor,
+      transitionDuration: SlidingScaledPageTransition.duration,
+      reverseTransitionDuration: SlidingScaledPageTransition.duration,
+    ));
   }
 }
 
