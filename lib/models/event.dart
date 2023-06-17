@@ -88,8 +88,12 @@ class EventLongForm implements BaseResponse {
     type = json['type'];
     createdBy = json['created_by'];
     participants = json['participants'].cast<String>();
-    startsAt = DateTime.fromMillisecondsSinceEpoch(json["starts_at"]);
-    endsAt = DateTime.fromMillisecondsSinceEpoch(json["ends_at"]);
+    startsAt = DateTime.fromMillisecondsSinceEpoch(
+      (json["starts_at"] * 1000).toInt(),
+    );
+    endsAt = DateTime.fromMillisecondsSinceEpoch(
+      (json["ends_at"] * 1000).toInt(),
+    );
     remindAt = List<int>.from(json["remind_at"]);
   }
 
