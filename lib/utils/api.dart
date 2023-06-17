@@ -332,4 +332,44 @@ class ApiManager {
 
     return EventLongForm.fromJson(ResponseStatus.success, response.data);
   }
+
+  /// Gets the details of an event with specified ID.
+  /// This function uses the GET /event endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest]: If the given data is invalid
+  /// - [ResponseStatus.success]: If the details has been successfully got
+  static Future<EventLongForm> getEvent({required String eventId}) async {
+    if (!isReady) {
+      return EventLongForm(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    if (!isAuthenticated) {
+      return EventLongForm(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    final response = await _dio.get("$_apiUrl/event",
+        options: Options(headers: {
+          HttpHeaders.authorizationHeader: getAuthorizationString(),
+        }),
+        data: {
+          "event_id": eventId,
+        });
+
+    if (response.statusCode! == 500) {
+      return EventLongForm(responseStatus: ResponseStatus.serverError);
+    }
+
+    if ([401, 403].contains(response.statusCode)) {
+      return EventLongForm(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    if (response.statusCode! == 400) {
+      return EventLongForm(responseStatus: ResponseStatus.invalidRequest);
+    }
+
+    return EventLongForm.fromJson(ResponseStatus.success, response.data);
+  }
 }
