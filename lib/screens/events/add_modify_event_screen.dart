@@ -7,6 +7,7 @@ import 'package:calendar_app/models/user_checkbox_data.dart';
 import 'package:calendar_app/screens/events/add_participants_screen.dart';
 import 'package:calendar_app/utils/datetime_picking.dart';
 import 'package:calendar_app/utils/event_management.dart';
+import 'package:calendar_app/utils/singletons/user_list.dart';
 import 'package:calendar_app/widgets/date_picker_card.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';
 import 'package:calendar_app/widgets/participants_card.dart';
@@ -18,13 +19,11 @@ import 'package:flutter/services.dart';
 class AddModifyEventScreen extends StatefulWidget {
   final FormType formType;
   final EventLongForm? event;
-  final List<UserNonResponse> userList;
 
   const AddModifyEventScreen({
     super.key,
     required this.formType,
     this.event,
-    required this.userList,
   });
 
   @override
@@ -183,7 +182,7 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
   }
 
   Future<void> prepareUserCheckboxList() async {
-    for (final user in widget.userList) {
+    for (final UserNonResponse user in await SUserList.userList) {
       userCheckData.add(UserCheckboxData(user: user));
     }
 
