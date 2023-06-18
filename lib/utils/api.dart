@@ -373,6 +373,49 @@ class ApiManager {
     return EventLongForm.fromJson(ResponseStatus.success, response.data);
   }
 
+  /// Finds the event with `eventId` inside [EventLongForm] and modifies it
+  /// with given data inside of it.
+  ///
+  /// This endpoint uses the PATCH /event endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest]: If the given data is invalid
+  /// - [ResponseStatus.notFound]: The event could not be found
+  /// - [ResponseStatus.accessDenied]: User does not own this event
+  /// - [ResponseStatus.success]: If the details has been successfully got
+  static Future<ResponseStatus> modifyEvent({
+    required EventLongForm event,
+  }) async {
+    if (!isReady) {
+      return ResponseStatus.authorizationError;
+    }
+
+    if (!isAuthenticated) {
+      return ResponseStatus.authorizationError;
+    }
+
+    final response = await _dio.patch(
+      "$_apiUrl/event",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: event.toJson(),
+    );
+
+    if (response.statusCode! == 400) return ResponseStatus.invalidRequest;
+
+    if ([401, 403].contains(response.statusCode)) {
+      return ResponseStatus.authorizationError;
+    }
+
+    if (response.statusCode! == 404) return ResponseStatus.notFound;
+    if (response.statusCode! == 406) return ResponseStatus.accessDenied;
+
+    return ResponseStatus.success;
+  }
+
   /// Deletes the event. This function uses the DELETE /event endpoint.
   ///
   /// This route can return the following response codes:
