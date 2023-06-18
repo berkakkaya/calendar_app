@@ -72,9 +72,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }) async {
     if (fetching) return;
 
-    setState(() {
-      fetching = true;
-    });
+    if (context.mounted) {
+      setState(() {
+        fetching = true;
+      });
+    }
 
     if (fetchEvents && context.mounted) {
       final EventList rawEvents = await _fetchEvents();
@@ -85,9 +87,11 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    setState(() {
-      fetching = false;
-    });
+    if (context.mounted) {
+      setState(() {
+        fetching = false;
+      });
+    }
   }
 
   Future<EventList> _fetchEvents() async {
@@ -136,10 +140,6 @@ class _HomeScreenState extends State<HomeScreen> {
       transitionDuration: SlidingScaledPageTransition.duration,
       reverseTransitionDuration: SlidingScaledPageTransition.duration,
     ));
-
-    if (context.mounted) {
-      await fetchData(fetchEvents: true);
-    }
   }
 }
 
