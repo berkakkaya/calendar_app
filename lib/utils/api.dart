@@ -382,7 +382,7 @@ class ApiManager {
   /// - [ResponseStatus.notFound]: The event could not be found
   /// - [ResponseStatus.accessDenied]: User does not own this event
   /// - [ResponseStatus.success]: If the details has been successfully got
-  Future<ResponseStatus> deleteEvent({required String eventId}) async {
+  static Future<ResponseStatus> deleteEvent({required String eventId}) async {
     if (!isReady) {
       return ResponseStatus.authorizationError;
     }
