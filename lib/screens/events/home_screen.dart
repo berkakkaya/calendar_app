@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:calendar_app/consts/illustrations.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/event.dart';
@@ -27,12 +30,19 @@ class _HomeScreenState extends State<HomeScreen> {
   bool fetching = false;
   bool addEventLock = false;
 
+  late StreamSubscription<void> listener;
+
   @override
   void initState() {
     super.initState();
     fetchData(fetchEvents: true);
 
-    EventFetchingBroadcaster.i.stream.listen((event) {
+    listener = EventFetchingBroadcaster.i.stream.listen((event) {
+      log(
+        "Got the event fetch request, initiating fetch...",
+        name: "HomeScreen",
+      );
+
       fetchData(fetchEvents: true);
     });
   }
@@ -70,6 +80,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchData({
     bool fetchEvents = false,
   }) async {
+    log(
+      "Fetching events...",
+      name: "HomeScreen::fetchData",
+    );
+
     if (fetching) return;
 
     if (context.mounted) {
@@ -140,6 +155,12 @@ class _HomeScreenState extends State<HomeScreen> {
       transitionDuration: SlidingScaledPageTransition.duration,
       reverseTransitionDuration: SlidingScaledPageTransition.duration,
     ));
+  }
+
+  @override
+  void dispose() {
+    listener.cancel();
+    super.dispose();
   }
 }
 
