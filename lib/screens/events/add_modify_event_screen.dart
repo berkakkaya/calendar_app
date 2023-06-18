@@ -55,10 +55,9 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
       event.participants = [];
       event.remindAt = [];
     } else {
-      event = EventLongForm.fromJson(
-        ResponseStatus.none,
-        widget.event!.toJson(),
-      );
+      event = widget.event!;
+
+      _restoreData();
     }
 
     prepareUserCheckboxList();
@@ -88,6 +87,23 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
             : _getListBody(),
       ),
     );
+  }
+
+  void _restoreData() {
+    controllerEventName.value = TextEditingValue(text: event.name!);
+    controllerEventType.value = TextEditingValue(text: event.type!);
+
+    if (event.remindAt!.isNotEmpty) {
+      controllerEventType.value = TextEditingValue(
+        text: event.remindAt![0].toString(),
+      );
+    }
+
+    setState(() {
+      date = event.startsAt!;
+      timeStart = TimeOfDay.fromDateTime(event.startsAt!);
+      timeEnd = TimeOfDay.fromDateTime(event.endsAt!);
+    });
   }
 
   Widget _getListBody() {
@@ -226,9 +242,9 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
   void routeSaveAction() {
     if (widget.formType == FormType.createEvent) {
       pageCreateEvent();
+    } else {
+      pageModifyEvent();
     }
-
-    // TODO: Connect the modify event function here
   }
 
   Future<void> pageCreateEvent() async {
@@ -238,6 +254,64 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
       isSaving = true;
     });
 
+    bool prepareStatus = await _prepareData();
+
+    if (prepareStatus == false) {
+      if (context.mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
+
+      return;
+    }
+
+    bool operationSuccess = false;
+
+    if (context.mounted) {
+      operationSuccess = await createEvent(context: context, event: event);
+
+      setState(() {
+        isSaving = false;
+      });
+    }
+
+    if (operationSuccess && context.mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> pageModifyEvent() async {
+    if (isSaving) return;
+
+    setState(() {
+      isSaving = true;
+    });
+
+    bool prepareStatus = await _prepareData();
+
+    if (prepareStatus == false) {
+      if (context.mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
+
+      return;
+    }
+
+    bool operationSuccess = false;
+
+    if (context.mounted) {
+      operationSuccess = await modifyEvent(context: context, event: event);
+    }
+
+    if (context.mounted) {
+      isSaving = false;
+    }
+
+    if (operationSuccess && context.mounted) Navigator.of(context).pop(true);
+  }
+
+  Future<bool> _prepareData() async {
     event.name = controllerEventName.text;
     event.type = controllerEventType.text;
 
@@ -263,27 +337,11 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
           content: [const Text(invalidNotificationInputWarning)],
         );
 
-        if (context.mounted) {
-          setState(() {
-            isSaving = false;
-          });
-        }
-
-        return;
+        return false;
       }
     }
 
-    bool operationSuccess = false;
-
-    if (context.mounted) {
-      operationSuccess = await createEvent(context: context, event: event);
-
-      setState(() {
-        isSaving = false;
-      });
-    }
-
-    if (operationSuccess && context.mounted) Navigator.of(context).pop();
+    return true;
   }
 
   Future<void> goToAddParticipantsScreen(BuildContext context) async {
@@ -314,5 +372,14 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
     setState(() {
       event.participants = participants;
     });
+  }
+
+  @override
+  void dispose() {
+    controllerEventName.dispose();
+    controllerEventNotification.dispose();
+    controllerEventType.dispose();
+
+    super.dispose();
   }
 }

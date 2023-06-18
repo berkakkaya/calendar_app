@@ -1,7 +1,10 @@
+import 'package:animations/animations.dart';
+import 'package:calendar_app/consts/colors.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/enums.dart';
 import 'package:calendar_app/models/event.dart';
 import 'package:calendar_app/models/user.dart';
+import 'package:calendar_app/screens/events/add_modify_event_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
 import 'package:calendar_app/utils/formatter.dart';
@@ -40,15 +43,30 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
       }
     }
 
+    List<Widget> actions = [];
+
+    if (hasAccessToModify) {
+      actions.add(
+        IconButton(
+          icon: const Icon(Icons.edit_outlined),
+          tooltip: "Etkinliği Düzenle",
+          onPressed: goToModifyEventScreen,
+        ),
+      );
+
+      actions.add(
+        IconButton(
+          icon: const Icon(Icons.delete_outline_rounded),
+          tooltip: "Etkinliği Sil",
+          onPressed: deleteEvent,
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Etkinlik"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_outline_rounded),
-            onPressed: deleteEvent,
-          ),
-        ],
+        actions: actions,
       ),
       body: fullEvent != null && createdBy != null
           ? _LoadedEventView(
@@ -57,12 +75,6 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
               userList: users,
             )
           : const Center(child: CircularProgressIndicator()),
-      floatingActionButton: !hasAccessToModify
-          ? null
-          : FloatingActionButton(
-              onPressed: () {},
-              child: const Icon(Icons.edit_outlined),
-            ),
     );
   }
 
@@ -257,6 +269,32 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
       Navigator.of(context).pop();
     }
   }
+
+  Future<void> goToModifyEventScreen() async {
+    final status = await Navigator.of(context).push<bool>(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return AddModifyEventScreen(
+            formType: FormType.modifyEvent,
+            event: fullEvent,
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SharedAxisTransition(
+            transitionType: SharedAxisTransitionType.horizontal,
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            fillColor: color1,
+            child: child,
+          );
+        },
+      ),
+    );
+
+    if (status == true && context.mounted) {
+      Navigator.of(context).pop();
+    }
+  }
 }
 
 class _LoadedEventView extends StatelessWidget {
@@ -276,7 +314,7 @@ class _LoadedEventView extends StatelessWidget {
     final timeEnd = TimeOfDay.fromDateTime(event.endsAt!);
 
     final strCreatedBy =
-        "${createdBy.name!} ${createdBy.surname!} @${createdBy.username}";
+        "${createdBy.name!} ${createdBy.surname!} (@${createdBy.username})";
 
     final strTimeFormatted =
         "${timeStart.format(context)} • ${timeEnd.format(context)}";
