@@ -230,9 +230,9 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
     final picked = await getTime(context);
 
     if (isStartingAt) {
-      timeStart = picked;
+      if (picked != null) timeStart = picked;
     } else {
-      timeEnd = picked;
+      if (picked != null) timeEnd = picked;
     }
 
     if (context.mounted) {
