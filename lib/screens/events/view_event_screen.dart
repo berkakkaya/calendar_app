@@ -7,6 +7,7 @@ import 'package:calendar_app/models/user.dart';
 import 'package:calendar_app/screens/events/add_modify_event_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
+import 'package:calendar_app/utils/event_fetching_broadcaster.dart';
 import 'package:calendar_app/utils/formatter.dart';
 import 'package:calendar_app/utils/singletons/user_list.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';
@@ -266,6 +267,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
 
     // Operation is successful, pop the screen
     if (context.mounted) {
+      EventFetchingBroadcaster.i.triggerFetch();
       Navigator.of(context).pop();
     }
   }
