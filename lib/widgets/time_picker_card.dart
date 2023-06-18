@@ -48,43 +48,58 @@ class TimePickerCard extends StatelessWidget {
     required BuildContext context,
     required bool isStartingAt,
   }) {
-    return Container(
-      decoration: _boxDecoration,
-      padding: _padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                isStartingAt ? Icons.history_rounded : Icons.update_rounded,
-                size: 16,
-                color: color1,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                isStartingAt ? "Başlangıç" : "Bitiş",
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: color1),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            getTimeIndicator(context, isStartingAt ? start : end),
-            style:
-                Theme.of(context).textTheme.bodyLarge?.copyWith(color: color1),
-          ),
-        ],
+    final String? timeIndicator = getTimeIndicator(
+      context,
+      isStartingAt ? start : end,
+    );
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 87),
+      child: Container(
+        decoration: _boxDecoration,
+        padding: _padding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  isStartingAt ? Icons.history_rounded : Icons.update_rounded,
+                  size: 16,
+                  color: color1,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  isStartingAt ? "Başlangıç" : "Bitiş",
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: color1),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              timeIndicator ?? "Dokunarak seçiniz.",
+              style: timeIndicator == null
+                  ? Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: color1)
+                  : Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(color: color1),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  String getTimeIndicator(BuildContext context, TimeOfDay? time) {
-    if (time == null) return "--:--";
+  String? getTimeIndicator(BuildContext context, TimeOfDay? time) {
+    if (time == null) return null;
 
     return time.format(context);
   }
