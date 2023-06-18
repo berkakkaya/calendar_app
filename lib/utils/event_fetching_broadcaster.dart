@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 /// Brodcaster that alerts if fetching the events are needed to its listeners.
 ///
@@ -32,6 +33,11 @@ class EventFetchingBroadcaster {
 
   /// Broadcast all of its listeners a fetch request.
   void triggerFetch() {
+    log(
+      "Broadcasting the fetch request to listeners...",
+      name: "EventFetchingBroadcaster",
+    );
+
     final List<MultiStreamController<void>> markedForRemoval = [];
 
     for (final listener in _listeners) {
