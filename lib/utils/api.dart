@@ -1,13 +1,10 @@
-// TODO: Remove this dead_code flag when other TODOs has been done.
-// ignore_for_file: dead_code
-
 import 'dart:io';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/authentication.dart';
-import 'package:calendar_app/models/exceptions.dart';
+import 'package:calendar_app/models/event.dart';
 import 'package:calendar_app/models/login_data.dart';
 import 'package:calendar_app/models/register_data.dart';
-import 'package:calendar_app/models/response_status.dart';
+import 'package:calendar_app/models/enums.dart';
 import 'package:calendar_app/models/user.dart';
 import 'package:calendar_app/models/user_list.dart';
 import 'package:dio/dio.dart';
@@ -60,10 +57,17 @@ class ApiManager {
   }
 
   /// Sets the refresh token with given argument
-  static void setRefreshToken({
+  static void setTokens({
     String? refreshToken,
+    String? accessToken,
   }) {
-    _refreshToken = refreshToken;
+    if (refreshToken != null) {
+      _refreshToken = refreshToken;
+    }
+
+    if (accessToken != null) {
+      _accessToken = accessToken;
+    }
   }
 
   /// Gets a new access token
@@ -74,9 +78,8 @@ class ApiManager {
   ///
   /// NOTE: If an authorization error happens in this function, you should
   /// take this as an logout event.
-  static Future<ResponseStatus> getNewToken() async {
-    if (!isReady) return ResponseStatus.none;
-    if (_refreshToken == null) return ResponseStatus.authorizationError;
+  static Future<String?> getNewAccessToken() async {
+    if (!isReady || _refreshToken == null) return null;
 
     final response = await _dio.post<Map<String, dynamic>>(
       "${_apiUrl!}/token",
@@ -89,11 +92,11 @@ class ApiManager {
 
     if ([400, 401].contains(response.statusCode)) {
       _refreshToken = null;
-      return ResponseStatus.authorizationError;
+      return null;
     }
 
     _accessToken = response.data!["access_token"];
-    return ResponseStatus.success;
+    return _accessToken;
   }
 
   /// Generates an authorization string based on access token or refresh token.
@@ -101,10 +104,10 @@ class ApiManager {
   /// If requested token is null, the returned data will also be null.
   static String? getAuthorizationString({bool isAccessToken = true}) {
     if (isAccessToken) {
-      return _accessToken == null ? "Bearer $_accessToken" : null;
+      return _accessToken != null ? "Bearer $_accessToken" : null;
     }
 
-    return _refreshToken == null ? "Bearer $_refreshToken" : null;
+    return _refreshToken != null ? "Bearer $_refreshToken" : null;
   }
 
   /// Log into an account and returns tokens
@@ -183,14 +186,6 @@ class ApiManager {
       return UserList(responseStatus: ResponseStatus.authorizationError);
     }
 
-    // This endpoint isn't implemented from the server side yet,
-    // we will simply raise an exception for now.
-
-    // TODO: Remove this exception when it has been implemented
-    throw NotImplementedException(
-      "This endpoint has not been implemented in server-side yet.",
-    );
-
     final response = await _dio.get(
       "${_apiUrl!}/users",
       options: Options(headers: {
@@ -213,5 +208,256 @@ class ApiManager {
     }
 
     return UserList(responseStatus: ResponseStatus.success, userList: list);
+  }
+
+  /// Gets the list of events that our user has created or participating in.
+  ///
+  /// This function uses the GET /events endpoint. [EventList]'s `data`
+  /// parameter will be empty if user has no events it has participating in.
+  static Future<EventList> getEventList() async {
+    if (!isReady) return EventList(responseStatus: ResponseStatus.none);
+
+    if (!isAuthenticated) {
+      return EventList(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    final response = await _dio.get(
+      "${_apiUrl!}/events",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+    );
+
+    if (response.statusCode! == 500) {
+      return EventList(responseStatus: ResponseStatus.serverError);
+    }
+
+    if ([401, 403].contains(response.statusCode)) {
+      return EventList(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    return EventList(
+      responseStatus: ResponseStatus.success,
+      data: response.data,
+    );
+  }
+
+  /// Gets the user with given user ID. This function uses the GET /user
+  /// endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest]: If the user data is invalid
+  /// - [ResponseStatus.success]: If the user has been got successfully
+  static Future<User> getUser({String? userId}) async {
+    if (!isReady) return User(responseStatus: ResponseStatus.none);
+
+    if (!isAuthenticated) {
+      return User(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    Map<String, String> data = {};
+
+    if (userId != null) {
+      data["user_id"] = userId;
+    }
+
+    final response = await _dio.get(
+      "$_apiUrl/user",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: data,
+    );
+
+    if (response.statusCode! == 500) {
+      return User(responseStatus: ResponseStatus.serverError);
+    }
+
+    if ([401, 403].contains(response.statusCode)) {
+      return User(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    if (response.statusCode! == 404) {
+      return User(responseStatus: ResponseStatus.notFound);
+    }
+
+    return User.fromJson(ResponseStatus.success, response.data);
+  }
+
+  /// Creates the event with given info. This function uses the POST /event
+  /// endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest]: If the event form is invalid
+  /// - [ResponseStatus.success]: If the event has been created successfully
+  static Future<EventLongForm> createEvent({
+    required EventLongForm event,
+  }) async {
+    if (!isReady) return EventLongForm(responseStatus: ResponseStatus.none);
+
+    if (!isAuthenticated) {
+      return EventLongForm(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    final response = await _dio.post(
+      "${_apiUrl!}/event",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: {
+        "name": event.name,
+        "type": event.type,
+        "participants": event.participants,
+        "starts_at": event.startsAt!.millisecondsSinceEpoch,
+        "ends_at": event.endsAt!.millisecondsSinceEpoch,
+        "remind_at": event.remindAt,
+      },
+    );
+
+    if (response.statusCode! == 500) {
+      return EventLongForm(responseStatus: ResponseStatus.serverError);
+    }
+
+    if ([401, 403].contains(response.statusCode)) {
+      return EventLongForm(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    if (response.statusCode! == 400) {
+      return EventLongForm(responseStatus: ResponseStatus.invalidRequest);
+    }
+
+    return EventLongForm.fromJson(ResponseStatus.success, response.data);
+  }
+
+  /// Gets the details of an event with specified ID.
+  /// This function uses the GET /event endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest]: If the given data is invalid
+  /// - [ResponseStatus.success]: If the details has been successfully got
+  static Future<EventLongForm> getEvent({required String eventId}) async {
+    if (!isReady) {
+      return EventLongForm(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    if (!isAuthenticated) {
+      return EventLongForm(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    final response = await _dio.get(
+      "$_apiUrl/event",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: {
+        "event_id": eventId,
+      },
+    );
+
+    if (response.statusCode! == 500) {
+      return EventLongForm(responseStatus: ResponseStatus.serverError);
+    }
+
+    if ([401, 403].contains(response.statusCode)) {
+      return EventLongForm(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    if (response.statusCode! == 400) {
+      return EventLongForm(responseStatus: ResponseStatus.invalidRequest);
+    }
+
+    return EventLongForm.fromJson(ResponseStatus.success, response.data);
+  }
+
+  /// Finds the event with `eventId` inside [EventLongForm] and modifies it
+  /// with given data inside of it.
+  ///
+  /// This endpoint uses the PATCH /event endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest]: If the given data is invalid
+  /// - [ResponseStatus.notFound]: The event could not be found
+  /// - [ResponseStatus.accessDenied]: User does not own this event
+  /// - [ResponseStatus.success]: If the details has been successfully got
+  static Future<ResponseStatus> modifyEvent({
+    required EventLongForm event,
+  }) async {
+    if (!isReady) {
+      return ResponseStatus.authorizationError;
+    }
+
+    if (!isAuthenticated) {
+      return ResponseStatus.authorizationError;
+    }
+
+    final response = await _dio.patch(
+      "$_apiUrl/event",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: event.toJson(),
+    );
+
+    if (response.statusCode! == 400) return ResponseStatus.invalidRequest;
+
+    if ([401, 403].contains(response.statusCode)) {
+      return ResponseStatus.authorizationError;
+    }
+
+    if (response.statusCode! == 404) return ResponseStatus.notFound;
+    if (response.statusCode! == 406) return ResponseStatus.accessDenied;
+
+    return ResponseStatus.success;
+  }
+
+  /// Deletes the event. This function uses the DELETE /event endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest]: If the given data is invalid
+  /// - [ResponseStatus.notFound]: The event could not be found
+  /// - [ResponseStatus.accessDenied]: User does not own this event
+  /// - [ResponseStatus.success]: If the details has been successfully got
+  static Future<ResponseStatus> deleteEvent({required String eventId}) async {
+    if (!isReady) {
+      return ResponseStatus.authorizationError;
+    }
+
+    if (!isAuthenticated) {
+      return ResponseStatus.authorizationError;
+    }
+
+    final response = await _dio.delete(
+      "$_apiUrl/event",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: {
+        "event_id": eventId,
+      },
+    );
+
+    final int statusCode = response.statusCode!;
+
+    if (statusCode == 500) return ResponseStatus.serverError;
+    if (statusCode == 400) return ResponseStatus.invalidRequest;
+
+    if ([401, 403].contains(statusCode)) {
+      return ResponseStatus.authorizationError;
+    }
+
+    if (statusCode == 404) return ResponseStatus.notFound;
+    if (statusCode == 406) return ResponseStatus.accessDenied;
+
+    return ResponseStatus.success;
   }
 }

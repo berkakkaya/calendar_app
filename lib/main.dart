@@ -1,9 +1,12 @@
 import 'package:calendar_app/screens/loading_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'consts/colors.dart';
 
 void main() {
+  initializeDateFormatting("tr_TR");
   runApp(const App());
 }
 
@@ -14,6 +17,13 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Calendar App",
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale("tr")],
+      locale: const Locale("tr"),
       theme: ThemeData(
         colorSchemeSeed: color3,
         scaffoldBackgroundColor: color1,
@@ -35,9 +45,18 @@ class App extends StatelessWidget {
             fontWeight: FontWeight.w600,
             color: color5,
           ),
+          labelMedium: GoogleFonts.inter(
+            fontSize: 12,
+            color: color5,
+          ),
           titleLarge: GoogleFonts.inter(
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w600,
             fontSize: 22,
+            color: color5,
+          ),
+          titleMedium: GoogleFonts.inter(
+            fontWeight: FontWeight.w500,
+            fontSize: 16,
             color: color5,
           ),
         ),
@@ -88,8 +107,20 @@ class App extends StatelessWidget {
         progressIndicatorTheme: const ProgressIndicatorThemeData(
           linearTrackColor: color3,
         ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: color6,
+          foregroundColor: color1,
+        ),
+        checkboxTheme: Theme.of(context).checkboxTheme.copyWith(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(3),
+              ),
+              fillColor: const MaterialStatePropertyAll(color2),
+              checkColor: const MaterialStatePropertyAll(color1),
+            ),
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
       home: const LoadingScreen(),
     );
   }

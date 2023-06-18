@@ -7,4 +7,10 @@ enum ResponseStatus {
   notFound,
   accessDenied,
   serverError,
+  invalidRequest
+}
+
+enum FormType {
+  modifyEvent,
+  createEvent,
 }

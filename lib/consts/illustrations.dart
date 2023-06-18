@@ -15,3 +15,7 @@ final passwordIllustration = SvgPicture.asset(
 final personalInfoIllustration = SvgPicture.asset(
   "assets/illustrations/personal_info.svg",
 );
+
+final emptyEventsIllustration = SvgPicture.asset(
+  "assets/illustrations/empty.svg",
+);

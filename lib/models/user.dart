@@ -1,6 +1,8 @@
-import 'package:calendar_app/models/response_status.dart';
+import 'package:calendar_app/models/base_response.dart';
+import 'package:calendar_app/models/enums.dart';
 
-class User {
+class User implements BaseResponse {
+  @override
   final ResponseStatus responseStatus;
 
   String? userId;
@@ -11,7 +13,7 @@ class User {
   User({required this.responseStatus, this.name, this.surname, this.username});
 
   User.fromJson(this.responseStatus, Map<String, dynamic> json) {
-    name = json['_id'];
+    userId = json['_id'];
     name = json['name'];
     surname = json['surname'];
     username = json['username'];

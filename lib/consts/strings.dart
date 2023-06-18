@@ -16,3 +16,22 @@ const serverError =
 
 const emptyInputWarning =
     "Bu sayfadaki alanlar boş geçilemez. Bütün alanların dolu olup olmadığını kontrol edip yeniden deneyiniz.";
+
+const loggedOutWarning =
+    "Oturumunuz kapatıldı. Oturum açma ekranına yönlendiriliyorsunuz.";
+
+const emptyEventsDesc =
+    "Oluşturduğunuz veya katılım sağladığınız herhangi bir etkinlik bulamadık. Etkinlik oluşturmak için sağ alttaki butonu kullanın.";
+
+const modifyEventEmptyWarning =
+    "Katılımcılar ve bildirim haricinde diğer alanların doldurulması zorunludur.";
+
+const invalidDateWarning =
+    "Lütfen tarihlerinizin doğru yapılandırıldığından emin olup yeniden deneyiniz.";
+
+const invalidNotificationInputWarning =
+    "Lütfen bildirim bölümünün sadece sayı olduğunu kontrol edip yeniden deneyin.";
+
+const dateFormat = "d MMMM y";
+const hourMinuteFormat = "HH:mm";
+const dateAndTime = "d MMMM y, HH:mm";

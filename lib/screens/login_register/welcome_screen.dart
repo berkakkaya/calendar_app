@@ -3,8 +3,8 @@ import 'package:calendar_app/consts/fonts.dart';
 import 'package:calendar_app/consts/illustrations.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/login_data.dart';
-import 'package:calendar_app/models/response_status.dart';
-import 'package:calendar_app/screens/home_screen.dart';
+import 'package:calendar_app/models/enums.dart';
+import 'package:calendar_app/screens/events/home_screen.dart';
 import 'package:calendar_app/screens/login_register/register_step1_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/widgets/popups.dart';
@@ -90,9 +90,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               const SizedBox(height: 32),
               GestureDetector(
                 onTap: loggingIn ? null : () => goToRegisterScreen(context),
-                child: const Text(
+                child: Text(
                   "Hesabınız yok mu? Kayıt olun.",
                   textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(decoration: TextDecoration.underline),
                 ),
               ),
             ],
@@ -170,6 +174,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     preferences.setString("accessToken", response.accessToken!);
     preferences.setString("refreshToken", response.refreshToken!);
+
+    ApiManager.setTokens(
+      accessToken: response.accessToken!,
+      refreshToken: response.refreshToken!,
+    );
 
     if (context.mounted) {
       setState(() {

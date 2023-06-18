@@ -2,12 +2,13 @@ import 'package:animations/animations.dart';
 import 'package:calendar_app/consts/colors.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/register_data.dart';
-import 'package:calendar_app/models/response_status.dart';
-import 'package:calendar_app/screens/home_screen.dart';
+import 'package:calendar_app/models/enums.dart';
+import 'package:calendar_app/screens/events/home_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';
 import 'package:calendar_app/widgets/popups.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterConfirmationScreen extends StatefulWidget {
   final RegisterData registerData;
@@ -150,6 +151,16 @@ class _RegisterConfirmationScreenState
 
       return;
     }
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    sharedPreferences.setString("accessToken", authData.accessToken!);
+    sharedPreferences.setString("refreshToken", authData.refreshToken!);
+
+    ApiManager.setTokens(
+      accessToken: authData.accessToken!,
+      refreshToken: authData.refreshToken!,
+    );
 
     if (context.mounted) {
       Navigator.of(context).pushAndRemoveUntil(

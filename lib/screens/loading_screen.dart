@@ -1,4 +1,5 @@
 import 'package:calendar_app/consts/strings.dart';
+import 'package:calendar_app/screens/events/home_screen.dart';
 import 'package:calendar_app/screens/login_register/welcome_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +14,14 @@ class LoadingScreen extends StatefulWidget {
 
 class _LoadingScreenState extends State<LoadingScreen> {
   bool initializeLock = false;
+  @override
+  void initState() {
+    super.initState();
+    initializeApp();
+  }
 
   @override
   Widget build(BuildContext context) {
-    initializeApp(context);
-
     return const Scaffold(
       body: SafeArea(
         child: Center(
@@ -31,15 +35,18 @@ class _LoadingScreenState extends State<LoadingScreen> {
     );
   }
 
-  void initializeApp(BuildContext context) async {
+  void initializeApp() async {
     if (initializeLock) return;
 
     setState(() {
       initializeLock = true;
     });
 
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? apiUrl;
+    String? accessToken;
+    String? refreshToken;
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     // Set the API initialization
     while (apiUrl == null) {
@@ -65,21 +72,33 @@ class _LoadingScreenState extends State<LoadingScreen> {
       }
     }
 
-    // TODO: Configure the home screen logic here.
+    accessToken = sharedPreferences.getString("accessToken");
+    refreshToken = sharedPreferences.getString("refreshToken");
 
+    // If user has logged in before, go to the home screen
+    if (accessToken != null && refreshToken != null) {
+      ApiManager.setTokens(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      );
+
+      if (context.mounted) {
+        navigateToScreen(context, const HomeScreen());
+      }
+
+      return;
+    }
+
+    // If not, navigate to the login screen (aka. Welcome Screen)
     if (context.mounted) {
-      setState(() {
-        initializeLock = false;
-      });
-
-      navigateToLoginScreen(context);
+      navigateToScreen(context, const WelcomeScreen());
     }
   }
 
-  void navigateToLoginScreen(BuildContext context) {
+  void navigateToScreen(BuildContext context, Widget screen) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
-        builder: (context) => const WelcomeScreen(),
+        builder: (context) => screen,
       ),
     );
   }
@@ -101,6 +120,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
                   decoration: const InputDecoration(
                     label: Text("API URL'si"),
                   ),
+                  controller:
+                      TextEditingController(text: "http://192.168.1.1:5000"),
                   keyboardType: TextInputType.url,
                   onChanged: (text) => apiUrl = text,
                 ),
