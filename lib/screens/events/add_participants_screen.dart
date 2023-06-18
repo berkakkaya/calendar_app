@@ -10,8 +10,6 @@ class AddParticipantsScreen extends StatefulWidget {
 }
 
 class _AddParticipantsScreenState extends State<AddParticipantsScreen> {
-  bool isFetching = false;
-
   @override
   void initState() {
     super.initState();
@@ -19,22 +17,22 @@ class _AddParticipantsScreenState extends State<AddParticipantsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: popScreen,
+    return WillPopScope(
+      onWillPop: () async {
+        popScreen();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Katılımcıları düzenle"),
         ),
-        title: const Text("Katılımcıları düzenle"),
+        body: ListView.separated(
+          padding: const EdgeInsets.symmetric(vertical: 32),
+          itemCount: widget.users.length,
+          itemBuilder: (context, index) => _getCheckBox(index),
+          separatorBuilder: (context, index) => const SizedBox(height: 32),
+        ),
       ),
-      body: isFetching
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              itemCount: widget.users.length,
-              itemBuilder: (context, index) => _getCheckBox(index),
-              separatorBuilder: (context, index) => const SizedBox(height: 32),
-            ),
     );
   }
 
