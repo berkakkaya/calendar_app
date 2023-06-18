@@ -32,9 +32,23 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool hasAccessToModify = false;
+
+    if (fullEvent != null && createdBy != null) {
+      if (fullEvent!.createdBy! == createdBy!.userId!) {
+        hasAccessToModify = true;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Etkinlik"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline_rounded),
+            onPressed: deleteEvent,
+          ),
+        ],
       ),
       body: fullEvent != null && createdBy != null
           ? _LoadedEventView(
@@ -43,6 +57,12 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
               userList: users,
             )
           : const Center(child: CircularProgressIndicator()),
+      floatingActionButton: !hasAccessToModify
+          ? null
+          : FloatingActionButton(
+              onPressed: () {},
+              child: const Icon(Icons.edit_outlined),
+            ),
     );
   }
 
@@ -153,6 +173,89 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
     }
 
     return response;
+  }
+
+  Future<void> deleteEvent() async {
+    if (fullEvent == null) return;
+
+    bool choice = false;
+
+    if (context.mounted) {
+      choice = await showConfirmationDialog(
+        context: context,
+        title: "Etkinliği sil",
+        content: [const Text("Etkinliğin silinmesini istiyor musunuz?")],
+      );
+    }
+
+    if (choice == false) return;
+
+    // Make the API call
+    ResponseStatus response = ResponseStatus.none;
+    bool authenticated = false;
+
+    if (context.mounted) {
+      authenticated = await checkAuthenticationStatus(
+        context: context,
+        apiCall: () async {
+          response = await ApiManager.deleteEvent(eventId: fullEvent!.eventId!);
+
+          // A hacky way, I don't like it but here we go
+          return User(responseStatus: response);
+        },
+      );
+    }
+
+    if (!authenticated || response == ResponseStatus.none) return;
+
+    if (response == ResponseStatus.serverError) {
+      if (context.mounted) {
+        await showWarningPopup(
+          context: context,
+          title: "Sunucu hatası",
+          content: [const Text(serverError)],
+        );
+      }
+
+      return;
+    }
+
+    if (response == ResponseStatus.invalidRequest) {
+      return;
+    }
+
+    if (response == ResponseStatus.notFound) {
+      if (context.mounted) {
+        await showWarningPopup(
+          context: context,
+          title: "Etkinlik bulunamadı",
+          content: [const Text("Etkinlik artık mevcut değil.")],
+        );
+      }
+
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      return;
+    }
+
+    if (response == ResponseStatus.accessDenied) {
+      if (context.mounted) {
+        await showWarningPopup(
+          context: context,
+          title: "Yetkiniz yok",
+          content: [const Text("Bu etkinliği silmek için yetkiniz yok.")],
+        );
+      }
+
+      return;
+    }
+
+    // Operation is successful, pop the screen
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 }
 
