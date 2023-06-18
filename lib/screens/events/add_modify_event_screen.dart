@@ -95,7 +95,7 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
     controllerEventType.value = TextEditingValue(text: event.type!);
 
     if (event.remindAt!.isNotEmpty) {
-      controllerEventType.value = TextEditingValue(
+      controllerEventNotification.value = TextEditingValue(
         text: event.remindAt![0].toString(),
       );
     }
