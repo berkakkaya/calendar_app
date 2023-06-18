@@ -372,4 +372,47 @@ class ApiManager {
 
     return EventLongForm.fromJson(ResponseStatus.success, response.data);
   }
+
+  /// Deletes the event. This function uses the DELETE /event endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest]: If the given data is invalid
+  /// - [ResponseStatus.notFound]: The event could not be found
+  /// - [ResponseStatus.accessDenied]: User does not own this event
+  /// - [ResponseStatus.success]: If the details has been successfully got
+  Future<ResponseStatus> deleteEvent({required String eventId}) async {
+    if (!isReady) {
+      return ResponseStatus.authorizationError;
+    }
+
+    if (!isAuthenticated) {
+      return ResponseStatus.authorizationError;
+    }
+
+    final response = await _dio.delete(
+      "$_apiUrl/event",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: {
+        "event_id": eventId,
+      },
+    );
+
+    final int statusCode = response.statusCode!;
+
+    if (statusCode == 500) return ResponseStatus.serverError;
+    if (statusCode == 400) return ResponseStatus.invalidRequest;
+
+    if ([401, 403].contains(statusCode)) {
+      return ResponseStatus.authorizationError;
+    }
+
+    if (statusCode == 404) return ResponseStatus.notFound;
+    if (statusCode == 406) return ResponseStatus.accessDenied;
+
+    return ResponseStatus.success;
+  }
 }
