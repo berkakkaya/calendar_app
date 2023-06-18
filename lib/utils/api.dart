@@ -350,13 +350,15 @@ class ApiManager {
       return EventLongForm(responseStatus: ResponseStatus.authorizationError);
     }
 
-    final response = await _dio.get("$_apiUrl/event",
-        options: Options(headers: {
-          HttpHeaders.authorizationHeader: getAuthorizationString(),
-        }),
-        data: {
-          "event_id": eventId,
-        });
+    final response = await _dio.get(
+      "$_apiUrl/event",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: {
+        "event_id": eventId,
+      },
+    );
 
     if (response.statusCode! == 500) {
       return EventLongForm(responseStatus: ResponseStatus.serverError);
