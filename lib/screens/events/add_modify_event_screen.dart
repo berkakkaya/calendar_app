@@ -6,6 +6,7 @@ import 'package:calendar_app/models/user.dart';
 import 'package:calendar_app/models/user_checkbox_data.dart';
 import 'package:calendar_app/screens/events/add_participants_screen.dart';
 import 'package:calendar_app/utils/datetime_picking.dart';
+import 'package:calendar_app/utils/event_fetching_broadcaster.dart';
 import 'package:calendar_app/utils/event_management.dart';
 import 'package:calendar_app/utils/singletons/user_list.dart';
 import 'package:calendar_app/widgets/date_picker_card.dart';
@@ -276,7 +277,10 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
       });
     }
 
-    if (operationSuccess && context.mounted) Navigator.of(context).pop();
+    if (operationSuccess && context.mounted) {
+      EventFetchingBroadcaster.i.triggerFetch();
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> pageModifyEvent() async {
@@ -308,7 +312,10 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
       isSaving = false;
     }
 
-    if (operationSuccess && context.mounted) Navigator.of(context).pop(true);
+    if (operationSuccess && context.mounted) {
+      EventFetchingBroadcaster.i.triggerFetch();
+      Navigator.of(context).pop(event);
+    }
   }
 
   Future<bool> _prepareData() async {

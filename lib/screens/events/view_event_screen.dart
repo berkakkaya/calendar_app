@@ -271,7 +271,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
   }
 
   Future<void> goToModifyEventScreen() async {
-    final status = await Navigator.of(context).push<bool>(
+    final returnedEvent = await Navigator.of(context).push<EventLongForm>(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {
           return AddModifyEventScreen(
@@ -291,8 +291,10 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
       ),
     );
 
-    if (status == true && context.mounted) {
-      Navigator.of(context).pop();
+    if (returnedEvent != null && context.mounted) {
+      setState(() {
+        fullEvent = returnedEvent;
+      });
     }
   }
 }
