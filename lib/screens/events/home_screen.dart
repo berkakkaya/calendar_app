@@ -7,6 +7,7 @@ import 'package:calendar_app/screens/events/add_modify_event_screen.dart';
 import 'package:calendar_app/utils/animations/sliding_scaled_page_transition.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
+import 'package:calendar_app/utils/event_fetching_broadcaster.dart';
 import 'package:calendar_app/utils/formatter.dart';
 import 'package:calendar_app/widgets/event_card.dart';
 import 'package:calendar_app/widgets/popups.dart';
@@ -30,6 +31,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     fetchData(fetchEvents: true);
+
+    EventFetchingBroadcaster.i.stream.listen((event) {
+      fetchData(fetchEvents: true);
+    });
   }
 
   @override
