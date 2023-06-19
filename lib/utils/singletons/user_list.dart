@@ -33,4 +33,8 @@ class SUserList {
 
     return _userList!;
   }
+
+  static void reset() {
+    _userList = null;
+  }
 }
