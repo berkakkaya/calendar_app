@@ -213,6 +213,19 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
       if (index != -1) userCheckData[index].checked = true;
     });
 
+    // Remove our user from this list
+    FullUser user = await SUser.user;
+    int removalIndex = -1;
+
+    for (int i = 0; i < userCheckData.length; i++) {
+      if (userCheckData[i].user.userId == user.userId!) {
+        removalIndex = i;
+        break;
+      }
+    }
+
+    if (removalIndex != -1) userCheckData.removeAt(removalIndex);
+
     setState(() {
       loading = false;
     });
