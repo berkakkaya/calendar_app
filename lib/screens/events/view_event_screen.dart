@@ -9,7 +9,7 @@ import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
 import 'package:calendar_app/utils/event_fetching_broadcaster.dart';
 import 'package:calendar_app/utils/formatter.dart';
-import 'package:calendar_app/utils/singletons/user_list.dart';
+import 'package:calendar_app/utils/singletons/s_user.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';
 import 'package:calendar_app/widgets/popups.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +26,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
   EventLongForm? fullEvent;
   User? createdBy;
   late List<UserNonResponse> users;
+  late FullUser loggedInUser;
 
   @override
   void initState() {
@@ -38,8 +39,8 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
   Widget build(BuildContext context) {
     bool hasAccessToModify = false;
 
-    if (fullEvent != null && createdBy != null) {
-      if (fullEvent!.createdBy! == createdBy!.userId!) {
+    if (fullEvent != null) {
+      if (fullEvent!.createdBy! == loggedInUser.userId!) {
         hasAccessToModify = true;
       }
     }
@@ -90,8 +91,8 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
     if (fetchedUser == null) return;
 
     createdBy = fetchedUser;
-
-    users = await SUserList.userList;
+    users = await SUser.userList;
+    loggedInUser = await SUser.user;
 
     if (createdBy != null && context.mounted) {
       setState(() {});
@@ -150,7 +151,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
     final isAuthorized = await checkAuthenticationStatus(
       context: context,
       apiCall: () async {
-        response = await ApiManager.getUser(userId: fullEvent!.createdBy!);
+        response = await ApiManager.getUserById(userId: fullEvent!.createdBy!);
         return response;
       },
     );
