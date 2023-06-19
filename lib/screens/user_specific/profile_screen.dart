@@ -123,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         MaterialPageRoute(
           builder: (context) => const WelcomeScreen(),
         ),
-        (route) => true,
+        (route) => false,
       );
     }
   }
