@@ -3,8 +3,9 @@ import 'package:calendar_app/models/user.dart';
 import 'package:calendar_app/models/user_list.dart';
 import 'package:calendar_app/utils/api.dart';
 
-class SUserList {
+class SUser {
   static List<UserNonResponse>? _userList;
+  static FullUser? _user;
 
   static Future<List<UserNonResponse>> get userList async {
     if (_userList != null) return _userList!;
@@ -22,19 +23,32 @@ class SUserList {
     if (responseUserList.responseStatus != ResponseStatus.success) return [];
     _userList = responseUserList.userList;
 
-    // Remove our user's ID from the list
-    final User responseUser = await ApiManager.getUser();
-
-    if (responseUser.responseStatus == ResponseStatus.success) {
-      _userList?.removeWhere(
-        (element) => element.userId == responseUser.userId!,
-      );
-    }
-
     return _userList!;
   }
 
-  static void reset() {
+  static Future<FullUser> get user async {
+    if (_user != null) return _user!;
+
+    FullUser response = await ApiManager.getProfile();
+
+    if (response.responseStatus == ResponseStatus.authorizationError) {
+      if (await ApiManager.getNewAccessToken() == null) {
+        return FullUser(responseStatus: ResponseStatus.none);
+      }
+
+      response = await ApiManager.getProfile();
+    }
+
+    if (response.responseStatus != ResponseStatus.success) {
+      return FullUser(responseStatus: ResponseStatus.none);
+    }
+
+    _user = response;
+    return _user!;
+  }
+
+  static void resetAll() {
     _userList = null;
+    _user = null;
   }
 }
