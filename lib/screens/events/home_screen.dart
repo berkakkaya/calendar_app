@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:animations/animations.dart';
 import 'package:calendar_app/consts/illustrations.dart';
 import 'package:calendar_app/consts/strings.dart';
 import 'package:calendar_app/models/event.dart';
 import 'package:calendar_app/models/enums.dart';
 import 'package:calendar_app/models/user.dart';
 import 'package:calendar_app/screens/events/add_modify_event_screen.dart';
+import 'package:calendar_app/screens/user_specific/profile_screen.dart';
 import 'package:calendar_app/utils/animations/sliding_scaled_page_transition.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
@@ -61,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
             tooltip: "Profil sayfası",
-            onPressed: () {},
+            onPressed: goToProfileScreen,
           ),
         ],
       ),
@@ -154,6 +156,22 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierColor: SlidingScaledPageTransition.barrierColor,
       transitionDuration: SlidingScaledPageTransition.duration,
       reverseTransitionDuration: SlidingScaledPageTransition.duration,
+    ));
+  }
+
+  void goToProfileScreen() {
+    Navigator.of(context).push(PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return const ProfileScreen();
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SharedAxisTransition(
+          animation: animation,
+          secondaryAnimation: secondaryAnimation,
+          transitionType: SharedAxisTransitionType.horizontal,
+          child: child,
+        );
+      },
     ));
   }
 

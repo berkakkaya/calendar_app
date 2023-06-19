@@ -19,7 +19,7 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => goToViewEventScreen(context), // TODO: Complete this later
+      onTap: () => goToViewEventScreen(context),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(

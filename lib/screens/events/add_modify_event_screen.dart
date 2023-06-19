@@ -8,7 +8,7 @@ import 'package:calendar_app/screens/events/add_participants_screen.dart';
 import 'package:calendar_app/utils/datetime_picking.dart';
 import 'package:calendar_app/utils/event_fetching_broadcaster.dart';
 import 'package:calendar_app/utils/event_management.dart';
-import 'package:calendar_app/utils/singletons/user_list.dart';
+import 'package:calendar_app/utils/singletons/s_user.dart';
 import 'package:calendar_app/widgets/date_picker_card.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';
 import 'package:calendar_app/widgets/participants_card.dart';
@@ -199,7 +199,7 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
   }
 
   Future<void> prepareUserCheckboxList() async {
-    for (final UserNonResponse user in await SUserList.userList) {
+    for (final UserNonResponse user in await SUser.userList) {
       userCheckData.add(UserCheckboxData(user: user));
     }
 
@@ -212,6 +212,19 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
 
       if (index != -1) userCheckData[index].checked = true;
     });
+
+    // Remove our user from this list
+    FullUser user = await SUser.user;
+    int removalIndex = -1;
+
+    for (int i = 0; i < userCheckData.length; i++) {
+      if (userCheckData[i].user.userId == user.userId!) {
+        removalIndex = i;
+        break;
+      }
+    }
+
+    if (removalIndex != -1) userCheckData.removeAt(removalIndex);
 
     setState(() {
       loading = false;

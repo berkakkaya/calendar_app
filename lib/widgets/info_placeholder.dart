@@ -23,18 +23,20 @@ class InfoPlaceholder extends StatelessWidget {
           child: icon,
         ),
         const SizedBox(width: 32),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                    fontSize: 16,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            content == null ? const SizedBox() : content!,
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      fontSize: 16,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              content == null ? const SizedBox() : content!,
+            ],
+          ),
         ),
       ],
     );

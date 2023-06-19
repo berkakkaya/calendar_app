@@ -51,3 +51,45 @@ class UserNonResponse {
     username = data["username"];
   }
 }
+
+class FullUser implements BaseResponse {
+  @override
+  final ResponseStatus responseStatus;
+
+  String? userId;
+  String? name;
+  String? surname;
+  String? username;
+  String? email;
+  int? tcIdentityNumber;
+  String? phone;
+  String? address;
+  bool? isAdmin;
+
+  FullUser({
+    required this.responseStatus,
+    this.userId,
+    this.name,
+    this.surname,
+    this.email,
+    this.tcIdentityNumber,
+    this.phone,
+    this.address,
+    this.isAdmin,
+  });
+
+  FullUser.fromJson({
+    required this.responseStatus,
+    required Map<String, dynamic> data,
+  }) {
+    userId = data["_id"];
+    name = data["name"];
+    surname = data["surname"];
+    username = data["username"];
+    email = data["email"];
+    tcIdentityNumber = data["tc_identity_no"];
+    phone = data["phone"];
+    address = data["address"];
+    isAdmin = data["is_admin"];
+  }
+}

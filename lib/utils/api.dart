@@ -250,17 +250,11 @@ class ApiManager {
   /// - [ResponseStatus.serverError]: If an server error is occured
   /// - [ResponseStatus.invalidRequest]: If the user data is invalid
   /// - [ResponseStatus.success]: If the user has been got successfully
-  static Future<User> getUser({String? userId}) async {
+  static Future<User> getUserById({required String userId}) async {
     if (!isReady) return User(responseStatus: ResponseStatus.none);
 
     if (!isAuthenticated) {
       return User(responseStatus: ResponseStatus.authorizationError);
-    }
-
-    Map<String, String> data = {};
-
-    if (userId != null) {
-      data["user_id"] = userId;
     }
 
     final response = await _dio.get(
@@ -268,7 +262,7 @@ class ApiManager {
       options: Options(headers: {
         HttpHeaders.authorizationHeader: getAuthorizationString(),
       }),
-      data: data,
+      data: {"user_id": userId},
     );
 
     if (response.statusCode! == 500) {
@@ -284,6 +278,47 @@ class ApiManager {
     }
 
     return User.fromJson(ResponseStatus.success, response.data);
+  }
+
+  /// Gets the full profile of user who has logged in. This function uses the
+  /// GET /user endpoint.
+  ///
+  /// This route can return the following response codes:
+  /// - [ResponseStatus.authorizationError]: If access token is invalid
+  /// - [ResponseStatus.serverError]: If an server error is occured
+  /// - [ResponseStatus.invalidRequest]: If the user data is invalid
+  /// - [ResponseStatus.success]: If the user has been got successfully
+  static Future<FullUser> getProfile() async {
+    if (!isReady) return FullUser(responseStatus: ResponseStatus.none);
+
+    if (!isAuthenticated) {
+      return FullUser(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    final response = await _dio.get(
+      "$_apiUrl/user",
+      options: Options(headers: {
+        HttpHeaders.authorizationHeader: getAuthorizationString(),
+      }),
+      data: {},
+    );
+
+    if (response.statusCode! == 500) {
+      return FullUser(responseStatus: ResponseStatus.serverError);
+    }
+
+    if ([401, 403].contains(response.statusCode)) {
+      return FullUser(responseStatus: ResponseStatus.authorizationError);
+    }
+
+    if (response.statusCode! == 404) {
+      return FullUser(responseStatus: ResponseStatus.notFound);
+    }
+
+    return FullUser.fromJson(
+      responseStatus: ResponseStatus.success,
+      data: response.data,
+    );
   }
 
   /// Creates the event with given info. This function uses the POST /event
