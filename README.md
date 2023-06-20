@@ -7,7 +7,10 @@ Mobile app for the Calendar App. This project was made as an final project for S
 This app serves your organization's events in a single place. You can view events, create new events, add participants
 and set reminders. Reminders will pop up event the app isn't running, so you won't miss out any event.
 
-Project itself is self-hostable. You can deploy it to any server you want. You will own your own data, not someone else.
+Project itself is self-hostable. You can deploy it to any server you want. You will own your own data - not someone else,
+even us.
+
+You can see the server software of this application [here.](https://github.com/berkakkaya/calendar_app_server)
 
 # Development
 
