@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:calendar_app/utils/parsing.dart';
@@ -20,8 +21,8 @@ class NotificationService {
     "Etkinlik Bildirimleri",
     channelDescription:
         "Yaklaşan etkinlik bildirimleri bu kanal üzerinden iletilir.",
-    importance: Importance.defaultImportance,
-    priority: Priority.defaultPriority,
+    importance: Importance.high,
+    priority: Priority.high,
     actions: [
       AndroidNotificationAction(
         "ok",
@@ -69,33 +70,46 @@ class NotificationService {
     if (initialized == false) _initialized = false;
   }
 
-  Future<void> scheduleNotification({
+  Future<bool> scheduleNotification({
     required String eventId,
     required String eventName,
     required DateTime startsAt,
     required int remindAt,
   }) async {
-    if (_initialized) return;
+    if (!_initialized) return false;
 
     final int id = parseNotificationId(eventId);
 
     final reminderTime = startsAt.subtract(Duration(minutes: remindAt));
     final convertedReminderTime = tz.TZDateTime.from(reminderTime, tz.local);
 
-    await _flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      "Etkinliğiniz yaklaşıyor",
-      '"$eventName" adlı etkinliğinize $remindAt dakika kaldı.',
-      convertedReminderTime,
-      notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.alarmClock,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
+    try {
+      await _flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        "Etkinliğiniz yaklaşıyor",
+        '"$eventName" adlı etkinliğinize $remindAt dakika kaldı.',
+        convertedReminderTime,
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.alarmClock,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+    } catch (e, stackTrace) {
+      log(
+        "Failed to add notification for event: $eventName ($eventId)",
+        name: "NotificationService",
+        error: e,
+        stackTrace: stackTrace,
+      );
+
+      return false;
+    }
+
+    return true;
   }
 
   Future<void> cancelNotification({required String eventId}) async {
-    if (_initialized) return;
+    if (!_initialized) return;
 
     final int id = parseNotificationId(eventId);
 
@@ -107,7 +121,7 @@ class NotificationService {
   }
 
   Future<List<ActiveNotification>> getActiveNotifications() async {
-    if (_initialized) return [];
+    if (!_initialized) return [];
 
     try {
       return await _flutterLocalNotificationsPlugin.getActiveNotifications();
