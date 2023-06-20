@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 /// and manages the entire flow. You can use this in pages directly.
 ///
 /// This function returns `false` if operation has failed, `true` if otherwise.
-Future<bool> createEvent({
+Future<String?> createEvent({
   required BuildContext context,
   required EventLongForm event,
 }) async {
@@ -24,7 +24,7 @@ Future<bool> createEvent({
       content: [const Text(modifyEventEmptyWarning)],
     );
 
-    return false;
+    return null;
   }
 
   // Check if date data is valid
@@ -44,7 +44,7 @@ Future<bool> createEvent({
       content: [const Text(invalidDateWarning)],
     );
 
-    return false;
+    return null;
   }
 
   // Try to create the event
@@ -59,7 +59,7 @@ Future<bool> createEvent({
   );
 
   if (!isLoggedIn) {
-    return false;
+    return null;
   }
 
   if (response.responseStatus == ResponseStatus.serverError) {
@@ -71,7 +71,7 @@ Future<bool> createEvent({
       );
     }
 
-    return false;
+    return null;
   }
 
   if (response.responseStatus == ResponseStatus.invalidRequest) {
@@ -83,11 +83,11 @@ Future<bool> createEvent({
       );
     }
 
-    return false;
+    return null;
   }
 
   // Operation is successful, return true
-  return true;
+  return response.eventId!;
 }
 
 /// Modifies the event with given parameters

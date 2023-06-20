@@ -5,6 +5,8 @@ import 'package:calendar_app/models/base_response.dart';
 import 'package:calendar_app/models/enums.dart';
 import 'package:calendar_app/screens/login_register/welcome_screen.dart';
 import 'package:calendar_app/utils/api.dart';
+import 'package:calendar_app/utils/services/notification_service.dart';
+import 'package:calendar_app/utils/singletons/s_user.dart';
 import 'package:calendar_app/widgets/popups.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,21 +51,39 @@ Future<bool> checkAuthenticationStatus({
 }
 
 Future<void> _goToWelcomeScreen(BuildContext context) async {
-  await Navigator.of(context).pushAndRemoveUntil(
-    PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const WelcomeScreen();
-      },
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SharedAxisTransition(
-          transitionType: SharedAxisTransitionType.horizontal,
-          animation: animation,
-          secondaryAnimation: secondaryAnimation,
-          fillColor: color1,
-          child: child,
-        );
-      },
-    ),
-    (route) => false,
+  // Unset the access and refresh tokens
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+
+  await preferences.remove("accessToken");
+  await preferences.remove("refreshToken");
+
+  ApiManager.setTokens(
+    accessToken: null,
+    refreshToken: null,
   );
+
+  SUser.resetAll();
+
+  // Cancel all notifications
+  await NotificationService.i.cancelAllNotifications();
+
+  if (context.mounted) {
+    await Navigator.of(context).pushAndRemoveUntil(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return const WelcomeScreen();
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SharedAxisTransition(
+            transitionType: SharedAxisTransitionType.horizontal,
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            fillColor: color1,
+            child: child,
+          );
+        },
+      ),
+      (route) => false,
+    );
+  }
 }

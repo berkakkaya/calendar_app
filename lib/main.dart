@@ -1,11 +1,15 @@
 import 'package:calendar_app/screens/loading_screen.dart';
+import 'package:calendar_app/utils/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'consts/colors.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.i.init();
+
   initializeDateFormatting("tr_TR");
   runApp(const App());
 }

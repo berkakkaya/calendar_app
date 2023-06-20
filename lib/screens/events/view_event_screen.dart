@@ -9,6 +9,7 @@ import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
 import 'package:calendar_app/utils/event_fetching_broadcaster.dart';
 import 'package:calendar_app/utils/formatter.dart';
+import 'package:calendar_app/utils/services/notification_service.dart';
 import 'package:calendar_app/utils/singletons/s_user.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';
 import 'package:calendar_app/widgets/popups.dart';
@@ -266,7 +267,14 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
       return;
     }
 
-    // Operation is successful, pop the screen
+    // Operation is successful
+
+    // Remove the event's notification if it exists
+    await NotificationService.i.cancelNotification(
+      eventId: fullEvent!.eventId!,
+    );
+
+    // Pop the screen
     if (context.mounted) {
       EventFetchingBroadcaster.i.triggerFetch();
       Navigator.of(context).pop();

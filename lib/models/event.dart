@@ -7,6 +7,7 @@ class EventShortForm {
   String? type;
   DateTime? startsAt;
   DateTime? endsAt;
+  List<int>? remindAt;
 
   EventShortForm({
     this.eventId,
@@ -26,6 +27,7 @@ class EventShortForm {
     endsAt = DateTime.fromMillisecondsSinceEpoch(
       (json["ends_at"] * 1000).toInt(),
     );
+    remindAt = List<int>.from(json["remind_at"]);
   }
 
   Map<String, dynamic> toJson() {
