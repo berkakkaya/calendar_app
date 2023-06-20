@@ -14,6 +14,7 @@ import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
 import 'package:calendar_app/utils/event_fetching_broadcaster.dart';
 import 'package:calendar_app/utils/formatter.dart';
+import 'package:calendar_app/utils/services/notification_service.dart';
 import 'package:calendar_app/widgets/event_card.dart';
 import 'package:calendar_app/widgets/popups.dart';
 import 'package:flutter/material.dart';
@@ -140,6 +141,18 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       return EventList(responseStatus: ResponseStatus.serverError);
+    }
+
+    // Configure the event notifications
+    for (final EventShortForm event in response.events) {
+      if (event.remindAt!.isNotEmpty) {
+        await NotificationService.i.scheduleNotification(
+          eventId: event.eventId!,
+          eventName: event.name!,
+          startsAt: event.startsAt!,
+          remindAt: event.remindAt![0],
+        );
+      }
     }
 
     return response;

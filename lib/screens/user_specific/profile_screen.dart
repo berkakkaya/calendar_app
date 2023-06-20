@@ -4,6 +4,7 @@ import 'package:calendar_app/models/user.dart';
 import 'package:calendar_app/screens/login_register/welcome_screen.dart';
 import 'package:calendar_app/utils/api.dart';
 import 'package:calendar_app/utils/checks.dart';
+import 'package:calendar_app/utils/services/notification_service.dart';
 import 'package:calendar_app/utils/singletons/s_user.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';
 import 'package:calendar_app/widgets/popups.dart';
@@ -116,6 +117,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     SUser.resetAll();
+
+    // Cancel all notifications
+    await NotificationService.i.cancelAllNotifications();
 
     // Return to the welcome screen
     if (context.mounted) {

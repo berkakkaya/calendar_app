@@ -8,6 +8,7 @@ import 'package:calendar_app/screens/events/add_participants_screen.dart';
 import 'package:calendar_app/utils/datetime_picking.dart';
 import 'package:calendar_app/utils/event_fetching_broadcaster.dart';
 import 'package:calendar_app/utils/event_management.dart';
+import 'package:calendar_app/utils/services/notification_service.dart';
 import 'package:calendar_app/utils/singletons/s_user.dart';
 import 'package:calendar_app/widgets/date_picker_card.dart';
 import 'package:calendar_app/widgets/info_placeholder.dart';
@@ -280,19 +281,31 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
       return;
     }
 
-    bool operationSuccess = false;
+    String? newEventId;
 
     if (context.mounted) {
-      operationSuccess = await createEvent(context: context, event: event);
+      newEventId = await createEvent(context: context, event: event);
 
       setState(() {
         isSaving = false;
       });
     }
 
-    if (operationSuccess && context.mounted) {
+    if (newEventId != null) {
       EventFetchingBroadcaster.i.triggerFetch();
-      Navigator.of(context).pop();
+
+      if (event.remindAt!.isNotEmpty) {
+        await NotificationService.i.scheduleNotification(
+          eventId: newEventId,
+          eventName: event.name!,
+          startsAt: event.startsAt!,
+          remindAt: event.remindAt![0],
+        );
+      }
+
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -325,9 +338,22 @@ class _AddModifyEventScreenState extends State<AddModifyEventScreen> {
       isSaving = false;
     }
 
-    if (operationSuccess && context.mounted) {
+    if (operationSuccess) {
       EventFetchingBroadcaster.i.triggerFetch();
-      Navigator.of(context).pop(event);
+      await NotificationService.i.cancelNotification(eventId: event.eventId!);
+
+      if (event.remindAt!.isNotEmpty) {
+        await NotificationService.i.scheduleNotification(
+          eventId: event.eventId!,
+          eventName: event.name!,
+          startsAt: event.startsAt!,
+          remindAt: event.remindAt![0],
+        );
+      }
+
+      if (context.mounted) {
+        Navigator.of(context).pop(event);
+      }
     }
   }
 
