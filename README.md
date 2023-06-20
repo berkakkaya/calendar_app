@@ -2,7 +2,7 @@
 
 Mobile app for the Calendar App. This project was made as an final project for Software Making class in our university.
 
-![Banner](https://github.com/berkakkaya/calendar_app/assets/31767631/fa10bc6c-9f61-41c9-bbe8-f3bda0b5572b)
+![Banner](https://github.com/berkakkaya/calendar_app/assets/31767631/5c9ab735-3ed8-4b2d-9751-723190261977)
 
 This app serves your organization's events in a single place. You can view events, create new events, add participants
 and set reminders. Reminders will pop up event the app isn't running, so you won't miss out any event.
