@@ -1,6 +1,6 @@
 # Calendar App
 
-Mobile app for the Calendar App. This project was made as an final project for Software Making class in our university.
+Mobile app for the Calendar App. This project was made as a final project for Software Making class in our university.
 
 ![Banner](https://github.com/berkakkaya/calendar_app/assets/31767631/5c9ab735-3ed8-4b2d-9751-723190261977)
 
